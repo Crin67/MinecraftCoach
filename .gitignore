@@ -43,6 +43,7 @@ server/data/remote_state.json
 # Generated site bundles
 Site/SiteUnzip/
 Site/minecraftcoach_site.zip
+Site/qa/
 
 # Logs and temp files
 *.log

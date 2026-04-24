@@ -1530,6 +1530,11 @@ function normalizeLanguage(language) {
 }
 
 function resolveInitialLanguage() {
+  const queryLanguage = normalizeLanguage(new URLSearchParams(window.location.search).get("lang"));
+  if (supportedLanguages.includes(queryLanguage) && new URLSearchParams(window.location.search).get("lang")) {
+    return queryLanguage;
+  }
+
   const savedRaw = localStorage.getItem(languageStorageKey);
   if (savedRaw) {
     const saved = normalizeLanguage(savedRaw);
