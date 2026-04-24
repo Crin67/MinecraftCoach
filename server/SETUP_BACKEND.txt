@@ -1,0 +1,62 @@
+Minecraft Coach backend setup
+
+1. Install Python dependencies
+   pip install -r server/requirements.txt
+
+2. Create a PostgreSQL database
+   You need:
+   - host
+   - port
+   - database name
+   - user
+   - password
+
+3. Set environment variables
+   Minimum required:
+   - MINECRAFT_COACH_DATABASE_URL=postgresql://USER:PASSWORD@HOST:5432/DBNAME
+   - MINECRAFT_COACH_ALLOWED_ORIGINS=https://minecraftcoach.pl,https://www.minecraftcoach.pl
+
+   Optional security tuning:
+   - MINECRAFT_COACH_SESSION_TTL_SECONDS=28800
+   - MINECRAFT_COACH_IDEMPOTENCY_TTL_SECONDS=43200
+   - MINECRAFT_COACH_RATE_VIOLATION_THRESHOLD=5
+   - MINECRAFT_COACH_RATE_VIOLATION_WINDOW_SECONDS=900
+   - MINECRAFT_COACH_IP_BAN_SECONDS=1800
+
+4. Start the backend
+   uvicorn server.app.main:app --host 0.0.0.0 --port 8000
+
+5. What happens on first start
+   - the backend connects to PostgreSQL
+   - it automatically applies server/postgresql_schema.sql
+   - it creates backend tables for:
+     - remote snapshots
+     - sessions
+     - idempotency keys
+     - audit log
+     - rate-limit hits
+     - rate-limit violations
+     - IP bans
+
+6. Check that it works
+   Open:
+   - http://127.0.0.1:8000/health
+
+   You should see:
+   - "status": "ok"
+   - "storage": { "backend": "postgresql", ... }
+
+7. Connect the desktop app
+   In the desktop app open Settings and set:
+   - Server API URL = https://your-backend-domain
+   or locally:
+   - Server API URL = http://127.0.0.1:8000
+
+8. Production note
+   If the website frontend is on minecraftcoach.pl and the API is on another domain/subdomain,
+   update Site/site-config.js:
+   - apiBaseUrl: "https://api.minecraftcoach.pl"
+
+9. Important
+   The backend now expects Idempotency-Key on POST /sync/push.
+   The desktop app in this project already sends it automatically.

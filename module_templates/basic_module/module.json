@@ -1,0 +1,106 @@
+{
+  "id": "module-example-science",
+  "slug": "example-science",
+  "sort_order": 100,
+  "title_ru": "Пример модуля",
+  "title_pl": "Przykladowy modul",
+  "title_en": "Example module",
+  "description_ru": "Измени этот файл и преврати шаблон в свою тему.",
+  "description_pl": "Edytuj ten plik i zamien szablon we wlasny temat.",
+  "description_en": "Edit this file and turn the template into your own topic.",
+  "levels": [],
+  "topics": [
+    {
+      "id": "topic-example-intro",
+      "slug": "intro",
+      "mode": "adult",
+      "grade": null,
+      "theme": "intro",
+      "sort_order": 1,
+      "title_ru": "Введение",
+      "title_pl": "Wstep",
+      "title_en": "Introduction",
+      "description_ru": "Короткий учебный блок и три примера заданий.",
+      "description_pl": "Krotki blok nauki i trzy przykladowe zadania.",
+      "description_en": "A short lesson block and three sample tasks.",
+      "lessons": [
+        {
+          "id": "lesson-example-intro-01",
+          "sort_order": 1,
+          "kind": "intro",
+          "title_ru": "Основная идея",
+          "title_pl": "Glowna idea",
+          "title_en": "Main idea",
+          "content_ru": "Здесь можно объяснить тему простыми словами, дать правило, формулу или короткий пример.",
+          "content_pl": "Tutaj mozna wyjasnic temat prostymi slowami, dodac zasade, wzor albo krotki przyklad.",
+          "content_en": "Explain the topic here with simple words, a rule, a formula, or a short example."
+        }
+      ],
+      "tasks": [
+        {
+          "id": "task-example-reading",
+          "type": "reading",
+          "mode": "adult",
+          "grade": null,
+          "theme": "intro",
+          "sort_order": 1,
+          "title_ru": "Прочитай правило",
+          "title_pl": "Przeczytaj zasade",
+          "title_en": "Read the rule",
+          "prompt_ru": "Прочитай правило и нажми кнопку подтверждения.",
+          "prompt_pl": "Przeczytaj zasade i kliknij przycisk potwierdzenia.",
+          "prompt_en": "Read the rule and press the confirmation button.",
+          "answer": "__read__",
+          "options": [],
+          "hint_type": "rule"
+        },
+        {
+          "id": "task-example-choice",
+          "type": "choice",
+          "mode": "adult",
+          "grade": null,
+          "theme": "intro",
+          "sort_order": 2,
+          "title_ru": "Проверка понимания",
+          "title_pl": "Sprawdzenie zrozumienia",
+          "title_en": "Understanding check",
+          "prompt_ru": "Что обычно считается правильным ответом?",
+          "prompt_pl": "Co zwykle jest poprawna odpowiedzia?",
+          "prompt_en": "What is usually the correct answer?",
+          "answer": [
+            "Тот, который совпадает с правилом",
+            "Ten, ktory zgadza sie z zasada",
+            "The one that matches the rule"
+          ],
+          "options": [
+            "Тот, который совпадает с правилом",
+            "Случайный вариант",
+            "Любой длинный ответ"
+          ],
+          "hint_type": "concept"
+        },
+        {
+          "id": "task-example-input",
+          "type": "input",
+          "mode": "adult",
+          "grade": null,
+          "theme": "intro",
+          "sort_order": 3,
+          "title_ru": "Ввод ответа",
+          "title_pl": "Wpisz odpowiedz",
+          "title_en": "Type the answer",
+          "prompt_ru": "Напиши слово: пример",
+          "prompt_pl": "Wpisz slowo: przyklad",
+          "prompt_en": "Type the word: example",
+          "answer": [
+            "пример",
+            "przyklad",
+            "example"
+          ],
+          "options": [],
+          "hint_type": "word"
+        }
+      ]
+    }
+  ]
+}

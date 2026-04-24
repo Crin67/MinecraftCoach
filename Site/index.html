@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Minecraft Coach — обучение во время игры</title>
+  <meta
+    name="description"
+    content="Сайт Minecraft Coach: скачать приложение, выбрать модули, посмотреть как работает программа и подключиться к мониторингу сессии по ID и паролю."
+  />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&family=Sora:wght@600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <div class="page-glow page-glow-a"></div>
+  <div class="page-glow page-glow-b"></div>
+
+  <header class="site-header">
+    <div class="container nav">
+      <a class="brand" href="#top">
+        <span class="brand-mark"></span>
+        <span>Minecraft Coach</span>
+      </a>
+      <nav class="menu">
+        <a href="#download">Скачать</a>
+        <a href="#modules">Модули</a>
+        <a href="#how-it-works">Как работает</a>
+        <a href="#monitoring">Мониторинг</a>
+        <a href="#updates">Обновление</a>
+      </nav>
+      <a class="button button-outline button-small" href="#monitoring">Войти по ID</a>
+    </div>
+  </header>
+
+  <main id="top">
+    <section class="hero container">
+      <div class="hero-copy">
+        <div class="eyebrow">Учёба без отрыва от любимой игры</div>
+        <h1>Приложение, которое вовремя останавливает игру и возвращает ребёнка к обучению.</h1>
+        <p class="hero-lead">
+          Minecraft Coach показывает темы, мини-уроки и задания прямо во время отдыха или игры,
+          считает статистику, хранит модули и позволяет родителю следить за конкретной сессией по
+          <strong>ID программы</strong> и <strong>паролю</strong>.
+        </p>
+        <div class="hero-actions">
+          <a id="hero-download-btn" class="button button-primary" href="./MinecraftCoach.exe">Скачать приложение</a>
+          <a class="button button-ghost" href="#how-it-works">Посмотреть как это работает</a>
+        </div>
+        <ul class="hero-points">
+          <li>Локальная desktop-программа с модулями и офлайн-работой</li>
+          <li>Сайт для загрузки новых версий и выбора модулей</li>
+          <li>Мониторинг конкретной сессии через интернет по ID и паролю</li>
+        </ul>
+      </div>
+
+      <div class="hero-panel">
+        <div class="window">
+          <div class="window-top">
+            <span></span><span></span><span></span>
+          </div>
+          <div class="window-body">
+            <div class="window-head">
+              <span class="chip">Электрик</span>
+              <span class="chip chip-gold">Монеты: 324</span>
+            </div>
+            <div class="lesson-card">
+              <div class="lesson-title">Короткий урок и проверка знаний</div>
+              <div class="lesson-columns">
+                <div>
+                  <h3>Русский</h3>
+                  <p>Сначала ученик повторяет тему, потом отвечает на вопрос.</p>
+                </div>
+                <div>
+                  <h3>Polski</h3>
+                  <p>Najpierw powtarza temat, potem odpowiada na pytanie.</p>
+                </div>
+              </div>
+              <div class="answer-strip">
+                <div class="answer-pill">Пауза (1)</div>
+                <div class="answer-pill answer-pill-accent">Проверить</div>
+              </div>
+            </div>
+            <div class="monitor-mini">
+              <div class="mini-line"><span>Текущий этап</span><strong>Ожидание</strong></div>
+              <div class="mini-line"><span>ID программы</span><strong>AB12CD34</strong></div>
+              <div class="mini-line"><span>Доступ</span><strong>по ID + паролю</strong></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="container section benefits">
+      <div class="section-heading">
+        <div class="eyebrow">Что умеет система</div>
+        <h2>Одна программа, три главные роли</h2>
+      </div>
+      <div class="benefit-grid">
+        <article class="benefit-card">
+          <div class="benefit-icon">01</div>
+          <h3>Учебные паузы</h3>
+          <p>Приложение через заданный интервал открывает урок или вопрос и не даёт просто пропустить этап.</p>
+        </article>
+        <article class="benefit-card">
+          <div class="benefit-icon">02</div>
+          <h3>Подключаемые модули</h3>
+          <p>Сайт показывает доступные модули. Их можно скачать отдельно и добавить в программу без ручной правки кода.</p>
+        </article>
+        <article class="benefit-card">
+          <div class="benefit-icon">03</div>
+          <h3>Мониторинг сессии</h3>
+          <p>Родитель входит на сайт по ID программы и паролю и видит текущую активность, статистику и состояние занятия.</p>
+        </article>
+      </div>
+    </section>
+
+    <section id="download" class="container section download-layout">
+      <div class="section-heading">
+        <div class="eyebrow">Загрузка</div>
+        <h2>Скачайте актуальную версию приложения</h2>
+      </div>
+      <div class="download-card">
+        <div>
+          <div class="card-label">Desktop приложение</div>
+          <h3 id="app-title">Minecraft Coach Desktop</h3>
+          <p id="app-meta" class="muted">Проверяем наличие файла...</p>
+        </div>
+        <div class="download-actions">
+          <a id="download-app-btn" class="button button-primary" href="./MinecraftCoach.exe">Скачать .exe</a>
+          <span id="download-status" class="download-status">Если кнопка неактивна, значит файл ещё не загружен на сайт.</span>
+        </div>
+      </div>
+    </section>
+
+    <section id="modules" class="container section">
+      <div class="section-heading">
+        <div class="eyebrow">Модули</div>
+        <h2>Выберите и скачайте нужный учебный модуль</h2>
+        <p class="muted">
+          Модули загружаются автоматически с сервера. После скачивания достаточно добавить их в папку
+          <code>modules</code> вашей программы.
+        </p>
+      </div>
+      <div id="modules-grid" class="module-grid">
+        <article class="module-card skeleton-card">
+          <div class="skeleton skeleton-title"></div>
+          <div class="skeleton skeleton-line"></div>
+          <div class="skeleton skeleton-line short"></div>
+        </article>
+        <article class="module-card skeleton-card">
+          <div class="skeleton skeleton-title"></div>
+          <div class="skeleton skeleton-line"></div>
+          <div class="skeleton skeleton-line short"></div>
+        </article>
+      </div>
+    </section>
+
+    <section id="how-it-works" class="container section how-grid">
+      <div>
+        <div class="section-heading left">
+          <div class="eyebrow">Как это работает</div>
+          <h2>Путь от установки до обучения</h2>
+        </div>
+        <div class="steps">
+          <div class="step">
+            <span>1</span>
+            <div>
+              <strong>Скачайте приложение</strong>
+              <p>На сайте всегда лежит актуальный `.exe`. Его легко заменить новой сборкой без переделки страницы.</p>
+            </div>
+          </div>
+          <div class="step">
+            <span>2</span>
+            <div>
+              <strong>Добавьте модули</strong>
+              <p>Скачайте нужные модули отдельно. Это могут быть детские темы, электрика и любые новые наборы контента.</p>
+            </div>
+          </div>
+          <div class="step">
+            <span>3</span>
+            <div>
+              <strong>Настройте интервалы и пароль</strong>
+              <p>В программе задайте паузы, число заданий, пароль родителя и адрес сервера для мониторинга.</p>
+            </div>
+          </div>
+          <div class="step">
+            <span>4</span>
+            <div>
+              <strong>Следите за сессией</strong>
+              <p>На сайте введите ID программы и пароль родителя, чтобы увидеть состояние именно этой сессии.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <aside class="info-panel">
+        <h3>Что именно видит родитель</h3>
+        <ul>
+          <li>текущий режим, тему, этап урока или ожидания</li>
+          <li>монеты, правильные ответы, ошибки и число учебных пауз</li>
+          <li>последнюю активность и состояние синхронизации</li>
+          <li>какая программа подключена: по ID и времени последнего обновления</li>
+        </ul>
+      </aside>
+    </section>
+
+    <section id="monitoring" class="container section monitoring-section">
+      <div class="section-heading">
+        <div class="eyebrow">Мониторинг по ID</div>
+        <h2>Подключение к конкретной сессии</h2>
+        <p class="muted">
+          Введите <strong>ID программы</strong> и <strong>пароль родителя</strong>. После входа сайт начнёт обновлять
+          состояние сессии автоматически.
+        </p>
+      </div>
+
+      <div class="monitor-layout">
+        <form id="monitor-login-form" class="monitor-login-card">
+          <label for="program-id">ID программы</label>
+          <input id="program-id" name="program_id" type="text" placeholder="Например AB12CD34" required />
+
+          <label for="parent-password">Пароль родителя</label>
+          <input id="parent-password" name="parent_password" type="password" placeholder="Введите пароль" required />
+
+          <button class="button button-primary button-wide" type="submit">Войти и открыть мониторинг</button>
+          <p id="login-message" class="form-message"></p>
+        </form>
+
+        <div id="monitor-dashboard" class="monitor-dashboard hidden">
+          <div class="monitor-top">
+            <div>
+              <div class="card-label">Активная сессия</div>
+              <h3 id="session-title">Minecraft Coach</h3>
+              <p id="session-updated" class="muted"></p>
+            </div>
+            <div class="monitor-actions">
+              <button id="refresh-session-btn" class="button button-outline" type="button">Обновить сейчас</button>
+              <button id="logout-session-btn" class="button button-ghost" type="button">Выйти</button>
+            </div>
+          </div>
+
+          <div id="stats-grid" class="stats-grid"></div>
+
+          <div class="monitor-panels">
+            <article class="monitor-card">
+              <h4>Состояние сессии</h4>
+              <div id="runtime-state" class="runtime-state"></div>
+            </article>
+            <article class="monitor-card">
+              <h4>Настройки программы</h4>
+              <div id="settings-state" class="settings-state"></div>
+            </article>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="updates" class="container section update-section">
+      <div class="section-heading">
+        <div class="eyebrow">Как обновлять сайт</div>
+        <h2>Чтобы выложить новую версию, не нужно переделывать страницу</h2>
+      </div>
+      <div class="update-grid">
+        <article class="update-card">
+          <h3>Обновление приложения</h3>
+          <p>Замените файл <code>dist/MinecraftCoach.exe</code> новой сборкой. Сайт начнёт отдавать новую версию автоматически.</p>
+        </article>
+        <article class="update-card">
+          <h3>Обновление модулей</h3>
+          <p>Добавьте или обновите папки в <code>modules/</code>. Сайт сам покажет их в каталоге и подготовит скачивание в ZIP.</p>
+        </article>
+        <article class="update-card">
+          <h3>Обновление текста сайта</h3>
+          <p>Меняйте секции в <code>Site/index.html</code>, стили в <code>Site/styles.css</code>, а интерактивность в <code>Site/script.js</code>.</p>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <div>
+        <strong>Minecraft Coach</strong>
+        <p>Сайт загрузки, модулей и мониторинга учебных сессий.</p>
+      </div>
+      <div class="footer-links">
+        <a href="#download">Скачать</a>
+        <a href="#modules">Модули</a>
+        <a href="#monitoring">Мониторинг</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="./site-config.js"></script>
+  <script src="./script.js"></script>
+</body>
+</html>

@@ -1,0 +1,49 @@
+# OS and editor noise
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+.vs/
+Site/.vs/
+
+# Python cache and virtual environments
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.venv/
+venv/
+env/
+
+# Local environment files
+.env
+.env.*
+!.env.example
+!.env.sample
+
+# Build and packaging output
+build/
+build_rebuild/
+dist/
+dist_rebuild/
+.tools/
+*.egg-info/
+pip-wheel-metadata/
+
+# Runtime data and user-generated files
+coach_data/
+recordings/
+module_backups/
+server/data/remote_state.json
+
+# Generated site bundles
+Site/SiteUnzip/
+Site/minecraftcoach_site.zip
+
+# Logs and temp files
+*.log
+*.tmp
+*.bak

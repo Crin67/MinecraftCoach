@@ -1,0 +1,51 @@
+name: Python Checks
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+  pull_request:
+    branches:
+      - main
+      - develop
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install backend dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r server/requirements.txt
+
+      - name: Compile active Python files
+        run: |
+          python -m py_compile \
+            minecraft_homework_overlay_v23.py \
+            minecraft_coach/__init__.py \
+            minecraft_coach/builtin_content.py \
+            minecraft_coach/lan_admin.py \
+            minecraft_coach/local_db.py \
+            minecraft_coach/module_installer.py \
+            minecraft_coach/module_loader.py \
+            minecraft_coach/remote_sync.py \
+            minecraft_coach/security.py \
+            modules/electrician/module.py \
+            modules/primary_school/module.py \
+            server/app/__init__.py \
+            server/app/main.py \
+            server/app/storage.py
+
+      - name: Import backend app
+        run: |
+          python -c "from server.app.main import app; print(app.title, app.version)"

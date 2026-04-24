@@ -1,0 +1,1 @@
+"""Minecraft Coach backend scaffold."""
