@@ -3,153 +3,254 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Minecraft Coach — обучение во время игры</title>
+  <title>Minecraft Coach - обучение прямо во время игры</title>
   <meta
     name="description"
-    content="Сайт Minecraft Coach: скачать приложение, выбрать модули, посмотреть как работает программа и подключиться к мониторингу сессии по ID и паролю."
+    content="Minecraft Coach вовремя ставит игру на паузу, показывает ребёнку мини-уроки и задания, а родителю даёт мониторинг сессии по ID программы и паролю."
   />
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&family=Sora:wght@600;700;800&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&family=Unbounded:wght@500;700;800&display=swap"
+    rel="stylesheet"
+  />
   <link rel="stylesheet" href="./styles.css" />
 </head>
 <body>
-  <div class="page-glow page-glow-a"></div>
-  <div class="page-glow page-glow-b"></div>
+  <div class="orb orb-a"></div>
+  <div class="orb orb-b"></div>
+  <div class="orb orb-c"></div>
 
   <header class="site-header">
     <div class="container nav">
-      <a class="brand" href="#top">
-        <span class="brand-mark"></span>
-        <span>Minecraft Coach</span>
+      <a class="brand" href="#top" aria-label="Minecraft Coach">
+        <span class="brand-icon" aria-hidden="true"></span>
+        <span class="brand-text">
+          <strong>Minecraft Coach</strong>
+          <small>Pause. Learn. Continue.</small>
+        </span>
       </a>
-      <nav class="menu">
+
+      <nav class="menu" aria-label="Главная навигация">
         <a href="#download">Скачать</a>
         <a href="#modules">Модули</a>
         <a href="#how-it-works">Как работает</a>
         <a href="#monitoring">Мониторинг</a>
         <a href="#updates">Обновление</a>
       </nav>
+
       <a class="button button-outline button-small" href="#monitoring">Войти по ID</a>
     </div>
   </header>
 
   <main id="top">
-    <section class="hero container">
+    <section class="hero container reveal">
       <div class="hero-copy">
-        <div class="eyebrow">Учёба без отрыва от любимой игры</div>
+        <span class="eyebrow">Обучение внутри игры</span>
         <h1>Приложение, которое вовремя останавливает игру и возвращает ребёнка к обучению.</h1>
         <p class="hero-lead">
           Minecraft Coach показывает темы, мини-уроки и задания прямо во время отдыха или игры,
-          считает статистику, хранит модули и позволяет родителю следить за конкретной сессией по
-          <strong>ID программы</strong> и <strong>паролю</strong>.
+          считает статистику, хранит модули и позволяет родителю следить за конкретной сессией
+          по ID программы и паролю.
         </p>
+
         <div class="hero-actions">
           <a id="hero-download-btn" class="button button-primary" href="./MinecraftCoach.exe">Скачать приложение</a>
-          <a class="button button-ghost" href="#how-it-works">Посмотреть как это работает</a>
+          <a class="button button-secondary" href="#how-it-works">Как это работает</a>
         </div>
-        <ul class="hero-points">
-          <li>Локальная desktop-программа с модулями и офлайн-работой</li>
-          <li>Сайт для загрузки новых версий и выбора модулей</li>
-          <li>Мониторинг конкретной сессии через интернет по ID и паролю</li>
-        </ul>
+
+        <div class="hero-signals">
+          <article class="signal-card panel">
+            <span class="signal-label">Пауза</span>
+            <strong>Урок в нужный момент</strong>
+          </article>
+          <article class="signal-card panel">
+            <span class="signal-label">Модули</span>
+            <strong>Темы загружаются отдельно</strong>
+          </article>
+          <article class="signal-card panel">
+            <span class="signal-label">Мониторинг</span>
+            <strong>Родитель видит сессию онлайн</strong>
+          </article>
+        </div>
       </div>
 
-      <div class="hero-panel">
-        <div class="window">
-          <div class="window-top">
-            <span></span><span></span><span></span>
+      <div class="hero-visual">
+        <div class="hero-stage">
+          <div class="hero-frame">
+            <img
+              src="./assets/hero-reference.png"
+              alt="Экран Minecraft Coach с паузой игры и карточкой вопроса"
+            />
           </div>
-          <div class="window-body">
-            <div class="window-head">
-              <span class="chip">Электрик</span>
-              <span class="chip chip-gold">Монеты: 324</span>
+
+          <div class="floating-card pause-badge panel">
+            <span class="pause-icon" aria-hidden="true">II</span>
+            <div>
+              <strong>Авто-пауза</strong>
+              <span>встраивается в игровой ритм</span>
             </div>
-            <div class="lesson-card">
-              <div class="lesson-title">Короткий урок и проверка знаний</div>
-              <div class="lesson-columns">
-                <div>
-                  <h3>Русский</h3>
-                  <p>Сначала ученик повторяет тему, потом отвечает на вопрос.</p>
-                </div>
-                <div>
-                  <h3>Polski</h3>
-                  <p>Najpierw powtarza temat, potem odpowiada na pytanie.</p>
-                </div>
-              </div>
-              <div class="answer-strip">
-                <div class="answer-pill">Пауза (1)</div>
-                <div class="answer-pill answer-pill-accent">Проверить</div>
-              </div>
-            </div>
-            <div class="monitor-mini">
-              <div class="mini-line"><span>Текущий этап</span><strong>Ожидание</strong></div>
-              <div class="mini-line"><span>ID программы</span><strong>AB12CD34</strong></div>
-              <div class="mini-line"><span>Доступ</span><strong>по ID + паролю</strong></div>
-            </div>
+          </div>
+
+          <div class="floating-card quiz-float panel">
+            <strong>Мини-урок + ответ</strong>
+            <p>Короткий вопрос, таймер и возвращение в игру только после действия.</p>
           </div>
         </div>
       </div>
     </section>
 
-    <section class="container section benefits">
-      <div class="section-heading">
-        <div class="eyebrow">Что умеет система</div>
-        <h2>Одна программа, три главные роли</h2>
-      </div>
-      <div class="benefit-grid">
-        <article class="benefit-card">
-          <div class="benefit-icon">01</div>
-          <h3>Учебные паузы</h3>
-          <p>Приложение через заданный интервал открывает урок или вопрос и не даёт просто пропустить этап.</p>
-        </article>
-        <article class="benefit-card">
-          <div class="benefit-icon">02</div>
-          <h3>Подключаемые модули</h3>
-          <p>Сайт показывает доступные модули. Их можно скачать отдельно и добавить в программу без ручной правки кода.</p>
-        </article>
-        <article class="benefit-card">
-          <div class="benefit-icon">03</div>
-          <h3>Мониторинг сессии</h3>
-          <p>Родитель входит на сайт по ID программы и паролю и видит текущую активность, статистику и состояние занятия.</p>
-        </article>
-      </div>
-    </section>
-
-    <section id="download" class="container section download-layout">
-      <div class="section-heading">
-        <div class="eyebrow">Загрузка</div>
-        <h2>Скачайте актуальную версию приложения</h2>
-      </div>
-      <div class="download-card">
+    <section class="container section reveal">
+      <div class="quickstrip-panel panel">
         <div>
-          <div class="card-label">Desktop приложение</div>
+          <span class="eyebrow eyebrow-soft">Продуктовая логика</span>
+          <h2>Один стек для Minecraft, видео, desktop-приложений и родительского контроля.</h2>
+        </div>
+
+        <div class="quickstrip-grid">
+          <article class="quick-card">
+            <strong>Игровая пауза</strong>
+            <p>Ребёнок не выпадает из привычного сценария, а мягко переключается на учебный этап.</p>
+          </article>
+          <article class="quick-card">
+            <strong>Короткий цикл</strong>
+            <p>Небольшие уроки и задания дают результат без перегруза и без долгих остановок.</p>
+          </article>
+          <article class="quick-card">
+            <strong>Контроль для родителя</strong>
+            <p>Сайт показывает актуальное состояние конкретной сессии, статистику и настройки.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="download" class="container section reveal">
+      <div class="section-heading">
+        <span class="eyebrow">Скачать</span>
+        <h2>Всегда актуальная desktop-версия без ручного поиска файлов.</h2>
+        <p class="section-lead">
+          Сайт сам показывает текущую сборку приложения и даёт прямую ссылку на свежий `.exe`.
+        </p>
+      </div>
+
+      <div class="download-layout">
+        <article class="download-card panel">
+          <div class="card-label">Desktop build</div>
           <h3 id="app-title">Minecraft Coach Desktop</h3>
           <p id="app-meta" class="muted">Проверяем наличие файла...</p>
-        </div>
-        <div class="download-actions">
-          <a id="download-app-btn" class="button button-primary" href="./MinecraftCoach.exe">Скачать .exe</a>
-          <span id="download-status" class="download-status">Если кнопка неактивна, значит файл ещё не загружен на сайт.</span>
+
+          <div class="download-actions">
+            <a id="download-app-btn" class="button button-primary" href="./MinecraftCoach.exe">Скачать .exe</a>
+            <span id="download-status" class="download-status">
+              Если кнопка неактивна, значит актуальная сборка ещё не загружена в папку `dist/`.
+            </span>
+          </div>
+        </article>
+
+        <aside class="download-side panel">
+          <div class="stack-list">
+            <div class="stack-item">
+              <span class="stack-icon stack-icon-cyan" aria-hidden="true"></span>
+              <div>
+                <strong>Каталог читается с backend API</strong>
+                <p>Версия, размер файла и дата обновления подтягиваются автоматически.</p>
+              </div>
+            </div>
+            <div class="stack-item">
+              <span class="stack-icon stack-icon-gold" aria-hidden="true"></span>
+              <div>
+                <strong>Hero-кнопка и раздел загрузки синхронизированы</strong>
+                <p>Пользователь всегда скачивает один и тот же актуальный билд из двух точек лендинга.</p>
+              </div>
+            </div>
+            <div class="stack-item">
+              <span class="stack-icon stack-icon-magenta" aria-hidden="true"></span>
+              <div>
+                <strong>Подходит для статического хостинга</strong>
+                <p>Фронт остаётся лёгким и быстрым, а функциональность берёт из уже существующих API-эндпойнтов.</p>
+              </div>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <section class="container section reveal">
+      <div class="section-heading center">
+        <span class="eyebrow">Интеграции</span>
+        <h2>Сайт теперь визуально поддерживает идею мульти-приложения и умных учебных пауз.</h2>
+        <p class="section-lead">
+          Блок вдохновлён вашим референсом и объясняет, как одна логика управляет игрой, видео и desktop-активностью.
+        </p>
+      </div>
+
+      <div class="integration-layout">
+        <article class="integration-shot panel">
+          <img
+            src="./assets/integration-reference.png"
+            alt="Схема интеграции Minecraft Coach с Minecraft, YouTube и desktop apps"
+            loading="lazy"
+          />
+        </article>
+
+        <div class="integration-copy">
+          <article class="integration-card panel">
+            <div class="integration-icon">MC</div>
+            <div>
+              <h3>Minecraft</h3>
+              <p>Программа ставит игру на паузу, выводит вопрос или мини-урок и возвращает ребёнка обратно в игровой поток.</p>
+            </div>
+          </article>
+
+          <article class="integration-card panel">
+            <div class="integration-icon">YT</div>
+            <div>
+              <h3>YouTube и видео</h3>
+              <p>Та же логика подходит для обучающих и развлекательных видео, когда нужен короткий учебный interrupt.</p>
+            </div>
+          </article>
+
+          <article class="integration-card panel">
+            <div class="integration-icon">OS</div>
+            <div>
+              <h3>Desktop apps</h3>
+              <p>Сценарий масштабируется на другие приложения, сохраняя единый формат паузы, задания и продолжения.</p>
+            </div>
+          </article>
+
+          <article class="integration-note panel">
+            <strong>Главная мысль</strong>
+            <p>
+              Minecraft Coach выглядит не как обычный лендинг про “скачать exe”, а как технологическая система,
+              которая связывает игру, обучение и удалённый контроль в одном опыте.
+            </p>
+          </article>
         </div>
       </div>
     </section>
 
-    <section id="modules" class="container section">
+    <section id="modules" class="container section reveal">
       <div class="section-heading">
-        <div class="eyebrow">Модули</div>
-        <h2>Выберите и скачайте нужный учебный модуль</h2>
-        <p class="muted">
-          Модули загружаются автоматически с сервера. После скачивания достаточно добавить их в папку
+        <span class="eyebrow">Модули</span>
+        <h2>Выберите и скачайте нужный учебный модуль.</h2>
+        <p class="section-lead">
+          Модули подгружаются с сервера автоматически. После скачивания достаточно положить их в папку
           <code>modules</code> вашей программы.
         </p>
       </div>
+
       <div id="modules-grid" class="module-grid">
-        <article class="module-card skeleton-card">
+        <article class="module-card panel skeleton-card">
           <div class="skeleton skeleton-title"></div>
           <div class="skeleton skeleton-line"></div>
           <div class="skeleton skeleton-line short"></div>
         </article>
-        <article class="module-card skeleton-card">
+        <article class="module-card panel skeleton-card">
+          <div class="skeleton skeleton-title"></div>
+          <div class="skeleton skeleton-line"></div>
+          <div class="skeleton skeleton-line short"></div>
+        </article>
+        <article class="module-card panel skeleton-card">
           <div class="skeleton skeleton-title"></div>
           <div class="skeleton skeleton-line"></div>
           <div class="skeleton skeleton-line short"></div>
@@ -157,66 +258,83 @@
       </div>
     </section>
 
-    <section id="how-it-works" class="container section how-grid">
-      <div>
-        <div class="section-heading left">
-          <div class="eyebrow">Как это работает</div>
-          <h2>Путь от установки до обучения</h2>
-        </div>
-        <div class="steps">
-          <div class="step">
-            <span>1</span>
-            <div>
-              <strong>Скачайте приложение</strong>
-              <p>На сайте всегда лежит актуальный `.exe`. Его легко заменить новой сборкой без переделки страницы.</p>
-            </div>
-          </div>
-          <div class="step">
-            <span>2</span>
-            <div>
-              <strong>Добавьте модули</strong>
-              <p>Скачайте нужные модули отдельно. Это могут быть детские темы, электрика и любые новые наборы контента.</p>
-            </div>
-          </div>
-          <div class="step">
-            <span>3</span>
-            <div>
-              <strong>Настройте интервалы и пароль</strong>
-              <p>В программе задайте паузы, число заданий, пароль родителя и адрес сервера для мониторинга.</p>
-            </div>
-          </div>
-          <div class="step">
-            <span>4</span>
-            <div>
-              <strong>Следите за сессией</strong>
-              <p>На сайте введите ID программы и пароль родителя, чтобы увидеть состояние именно этой сессии.</p>
-            </div>
-          </div>
-        </div>
-      </div>
-      <aside class="info-panel">
-        <h3>Что именно видит родитель</h3>
-        <ul>
-          <li>текущий режим, тему, этап урока или ожидания</li>
-          <li>монеты, правильные ответы, ошибки и число учебных пауз</li>
-          <li>последнюю активность и состояние синхронизации</li>
-          <li>какая программа подключена: по ID и времени последнего обновления</li>
-        </ul>
-      </aside>
-    </section>
-
-    <section id="monitoring" class="container section monitoring-section">
+    <section id="how-it-works" class="container section reveal">
       <div class="section-heading">
-        <div class="eyebrow">Мониторинг по ID</div>
-        <h2>Подключение к конкретной сессии</h2>
-        <p class="muted">
-          Введите <strong>ID программы</strong> и <strong>пароль родителя</strong>. После входа сайт начнёт обновлять
-          состояние сессии автоматически.
+        <span class="eyebrow">Как работает</span>
+        <h2>Путь от установки до обучающей сессии.</h2>
+      </div>
+
+      <div class="process-layout">
+        <div class="steps">
+          <article class="step-card panel">
+            <span class="step-index">1</span>
+            <div>
+              <h3>Скачайте приложение</h3>
+              <p>На сайте всегда лежит свежая сборка, так что пользователю не нужно искать правильную версию вручную.</p>
+            </div>
+          </article>
+
+          <article class="step-card panel">
+            <span class="step-index">2</span>
+            <div>
+              <h3>Добавьте нужные модули</h3>
+              <p>Темы и наборы контента загружаются отдельно, поэтому программу можно расширять без новой сборки сайта.</p>
+            </div>
+          </article>
+
+          <article class="step-card panel">
+            <span class="step-index">3</span>
+            <div>
+              <h3>Настройте интервалы и пароль</h3>
+              <p>Родитель выбирает темп учебных пауз, объём заданий и защищает доступ к мониторингу паролем.</p>
+            </div>
+          </article>
+
+          <article class="step-card panel">
+            <span class="step-index">4</span>
+            <div>
+              <h3>Следите за сессией онлайн</h3>
+              <p>По ID программы и паролю сайт показывает текущее состояние, статистику и последнее обновление.</p>
+            </div>
+          </article>
+        </div>
+
+        <aside class="process-aside panel">
+          <div class="card-label">Почему это работает</div>
+          <div class="status-list">
+            <div class="status-row">
+              <span>Урок встроен в привычный игровой цикл</span>
+              <strong>без резкой смены контекста</strong>
+            </div>
+            <div class="status-row">
+              <span>Референсный стиль держит ощущение технологичности</span>
+              <strong>неон, схемы, глубокий тёмный фон</strong>
+            </div>
+            <div class="status-row">
+              <span>Фронт связан с существующим backend</span>
+              <strong>без переписывания API</strong>
+            </div>
+            <div class="status-row">
+              <span>Блоки легко расширять новыми разделами</span>
+              <strong>например, закрытыми roadmap-фичами</strong>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <section id="monitoring" class="container section reveal">
+      <div class="section-heading">
+        <span class="eyebrow">Мониторинг</span>
+        <h2>Подключение к конкретной сессии по ID программы.</h2>
+        <p class="section-lead">
+          Введите <strong>ID программы</strong> и <strong>пароль родителя</strong>. После входа сайт начнёт
+          автоматически обновлять состояние сессии.
         </p>
       </div>
 
       <div class="monitor-layout">
-        <form id="monitor-login-form" class="monitor-login-card">
+        <form id="monitor-login-form" class="monitor-login-card panel">
           <label for="program-id">ID программы</label>
           <input id="program-id" name="program_id" type="text" placeholder="Например AB12CD34" required />
 
@@ -227,54 +345,111 @@
           <p id="login-message" class="form-message"></p>
         </form>
 
-        <div id="monitor-dashboard" class="monitor-dashboard hidden">
-          <div class="monitor-top">
-            <div>
-              <div class="card-label">Активная сессия</div>
-              <h3 id="session-title">Minecraft Coach</h3>
-              <p id="session-updated" class="muted"></p>
-            </div>
-            <div class="monitor-actions">
-              <button id="refresh-session-btn" class="button button-outline" type="button">Обновить сейчас</button>
-              <button id="logout-session-btn" class="button button-ghost" type="button">Выйти</button>
-            </div>
-          </div>
+        <div class="monitor-side">
+          <article id="monitor-empty-state" class="monitor-preview panel">
+            <div class="card-label">Онлайн-доступ</div>
+            <h3>Родитель подключается по ID программы и паролю, без лишних экранов и сложного онбординга.</h3>
+            <p class="muted">
+              После входа открывается живая сводка: текущий режим, активная тема, монеты, ошибки,
+              число пауз и параметры сессии.
+            </p>
 
-          <div id="stats-grid" class="stats-grid"></div>
+            <div class="preview-grid">
+              <div class="preview-chip">
+                <span>ID программы</span>
+                <strong>точечный доступ</strong>
+              </div>
+              <div class="preview-chip">
+                <span>Пароль родителя</span>
+                <strong>защищённый вход</strong>
+              </div>
+              <div class="preview-chip">
+                <span>Автообновление</span>
+                <strong>каждые 15 секунд</strong>
+              </div>
+              <div class="preview-chip">
+                <span>Dashboard</span>
+                <strong>статистика + статус</strong>
+              </div>
+            </div>
+          </article>
 
-          <div class="monitor-panels">
-            <article class="monitor-card">
-              <h4>Состояние сессии</h4>
-              <div id="runtime-state" class="runtime-state"></div>
-            </article>
-            <article class="monitor-card">
-              <h4>Настройки программы</h4>
-              <div id="settings-state" class="settings-state"></div>
-            </article>
+          <div id="monitor-dashboard" class="monitor-dashboard panel hidden">
+            <div class="monitor-top">
+              <div>
+                <div class="card-label">Активная сессия</div>
+                <h3 id="session-title">Minecraft Coach</h3>
+                <p id="session-updated" class="muted"></p>
+              </div>
+
+              <div class="monitor-actions">
+                <button id="refresh-session-btn" class="button button-outline" type="button">Обновить сейчас</button>
+                <button id="logout-session-btn" class="button button-secondary" type="button">Выйти</button>
+              </div>
+            </div>
+
+            <div id="stats-grid" class="stats-grid"></div>
+
+            <div class="monitor-panels">
+              <article class="monitor-card panel">
+                <h4>Состояние сессии</h4>
+                <div id="runtime-state" class="runtime-state"></div>
+              </article>
+
+              <article class="monitor-card panel">
+                <h4>Настройки программы</h4>
+                <div id="settings-state" class="settings-state"></div>
+              </article>
+            </div>
           </div>
         </div>
       </div>
     </section>
 
-    <section id="updates" class="container section update-section">
+    <section id="updates" class="container section reveal">
       <div class="section-heading">
-        <div class="eyebrow">Как обновлять сайт</div>
-        <h2>Чтобы выложить новую версию, не нужно переделывать страницу</h2>
+        <span class="eyebrow">Обновление</span>
+        <h2>Чтобы выложить новую версию, не нужно заново проектировать сайт.</h2>
       </div>
+
       <div class="update-grid">
-        <article class="update-card">
+        <article class="update-card panel">
           <h3>Обновление приложения</h3>
-          <p>Замените файл <code>dist/MinecraftCoach.exe</code> новой сборкой. Сайт начнёт отдавать новую версию автоматически.</p>
+          <p>Достаточно заменить <code>dist/MinecraftCoach.exe</code>. Каталог загрузок начнёт отдавать новую сборку автоматически.</p>
         </article>
-        <article class="update-card">
+
+        <article class="update-card panel">
           <h3>Обновление модулей</h3>
-          <p>Добавьте или обновите папки в <code>modules/</code>. Сайт сам покажет их в каталоге и подготовит скачивание в ZIP.</p>
+          <p>Добавьте или обновите папки в <code>modules/</code>, и сайт сам покажет их в каталоге для скачивания.</p>
         </article>
-        <article class="update-card">
-          <h3>Обновление текста сайта</h3>
-          <p>Меняйте секции в <code>Site/index.html</code>, стили в <code>Site/styles.css</code>, а интерактивность в <code>Site/script.js</code>.</p>
+
+        <article class="update-card panel">
+          <h3>Новые секции сайта</h3>
+          <p>Страница теперь собрана как набор выразительных блоков, которые легко расширять под roadmap, кейсы и новые функции.</p>
         </article>
       </div>
+    </section>
+
+    <section class="container section reveal">
+      <div class="section-heading">
+        <span class="eyebrow">Секретный блок</span>
+        <h2>Визуально заложили место под будущие закрытые функции и новые режимы обучения.</h2>
+        <p class="section-lead">
+          Этот блок продолжает атмосферу продукта и работает как тизер следующего этапа развития.
+        </p>
+      </div>
+
+      <article class="secret-card">
+        <img
+          src="./assets/secret-reference.png"
+          alt="Тизер секретного блока Minecraft Coach"
+          loading="lazy"
+        />
+        <div class="secret-overlay">
+          <span class="secret-badge">Roadmap teaser</span>
+          <p>Подготовили зону для закрытых режимов, специальных сценариев и следующей волны фич.</p>
+        </div>
+      </article>
     </section>
   </main>
 
@@ -282,8 +457,9 @@
     <div class="container footer-inner">
       <div>
         <strong>Minecraft Coach</strong>
-        <p>Сайт загрузки, модулей и мониторинга учебных сессий.</p>
+        <p>Лендинг загрузки, модулей и мониторинга учебных сессий, собранный в технологичном стиле ваших референсов.</p>
       </div>
+
       <div class="footer-links">
         <a href="#download">Скачать</a>
         <a href="#modules">Модули</a>

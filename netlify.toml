@@ -1,0 +1,38 @@
+[build]
+publish = "Site"
+
+[[headers]]
+for = "/assets/*"
+
+  [headers.values]
+  Cache-Control = "public, max-age=31536000, immutable"
+
+[[redirects]]
+from = "/downloads/*"
+to = "https://minecraftcoach.pl/downloads/:splat"
+status = 200
+force = true
+
+[[redirects]]
+from = "/auth/*"
+to = "https://minecraftcoach.pl/auth/:splat"
+status = 200
+force = true
+
+[[redirects]]
+from = "/dashboard"
+to = "https://minecraftcoach.pl/dashboard"
+status = 200
+force = true
+
+[[redirects]]
+from = "/content"
+to = "https://minecraftcoach.pl/content"
+status = 200
+force = true
+
+[[redirects]]
+from = "/health"
+to = "https://minecraftcoach.pl/health"
+status = 200
+force = true

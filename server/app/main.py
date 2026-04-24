@@ -42,6 +42,7 @@ from .storage import (
 
 
 SITE_DIR = ROOT_DIR / "Site"
+SITE_ASSETS_DIR = SITE_DIR / "assets"
 DIST_DIR = ROOT_DIR / "dist"
 MODULES_DIR = ROOT_DIR / "modules"
 DATA_DIR = ROOT_DIR / "server" / "data"
@@ -103,6 +104,8 @@ app.add_middleware(
 
 if SITE_DIR.exists():
     app.mount("/site-static", StaticFiles(directory=SITE_DIR), name="site-static")
+if SITE_ASSETS_DIR.exists():
+    app.mount("/assets", StaticFiles(directory=SITE_ASSETS_DIR), name="site-assets")
 
 
 @app.middleware("http")
@@ -110,7 +113,11 @@ async def apply_backend_protection(request: Request, call_next):
     response_headers = security_headers()
     rate_headers: dict[str, str] = {}
     client_ip = get_client_ip(request)
-    if request.url.path not in PUBLIC_SITE_FILES and not request.url.path.startswith("/site-static/"):
+    if (
+        request.url.path not in PUBLIC_SITE_FILES
+        and not request.url.path.startswith("/site-static/")
+        and not request.url.path.startswith("/assets/")
+    ):
         try:
             rate_headers = ensure_rate_limit(request)
         except RateLimitExceededError as exc:
