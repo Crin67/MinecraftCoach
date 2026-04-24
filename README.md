@@ -5,7 +5,7 @@ the public website, and the content/module packs used by the project.
 
 ## Current Versions
 
-- Project release: `0.23.0`
+- Project release: `0.24.0`
 - Desktop app line: `v23`
 - Backend API metadata: `0.3.0`
 
@@ -73,7 +73,7 @@ Recommended flow:
 
 ## Versioning Rules
 
-- Repository release tags should follow semantic versioning, starting from `v0.23.0`
+- Repository release tags should follow semantic versioning, current release: `v0.24.0`
 - Desktop app snapshots can continue using the internal `v23`, `v24`, ... naming
 - Backend API can evolve independently and currently reports `0.3.0`
 

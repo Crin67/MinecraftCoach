@@ -1,0 +1,103 @@
+Minecraft Coach: как соединить backend, сайт и программу
+
+1. Подготовьте backend.env
+
+Откройте файл:
+- server/backend.env
+
+Создайте его на основе:
+- server/backend.env.example
+
+Что нужно сделать:
+- подставить реальные PostgreSQL параметры из панели хостинга
+- заменить host, port, dbname, user и password на реальные значения
+- не загружать server/backend.env в GitHub, потому что в нём будут секреты
+
+2. Запустите backend локально
+
+Проще всего:
+- запустить start_backend_postgres.bat из корня проекта
+
+Или через PowerShell:
+- cd "C:\Users\Crin67.DESKTOP-PN851IG\Desktop\Minecraft Coach"
+- python -m pip install -r server\requirements.txt
+- python -m uvicorn server.app.main:app --host 0.0.0.0 --port 8000 --env-file server\backend.env
+
+3. Проверьте, что backend реально подключился к PostgreSQL
+
+Откройте в браузере:
+- http://127.0.0.1:8000/health
+
+Ожидаемый результат:
+- status = ok
+- storage.backend = postgresql
+
+Если backend не стартует:
+- проверьте пароль в server/backend.env
+- проверьте точное имя базы в панели хостинга
+- убедитесь, что внешний доступ к PostgreSQL разрешён в панели хостинга
+
+4. Как соединить сайт с backend
+
+Вариант A. Сайт и backend работают на одном адресе:
+- тогда в Site/site-config.js оставьте:
+- apiBaseUrl: ""
+
+Вариант B. Сайт на minecraftcoach.pl, а backend на другом адресе, например api.minecraftcoach.pl:
+- откройте Site/site-config.js
+- укажите:
+- apiBaseUrl: "https://api.minecraftcoach.pl"
+
+Важно:
+- статический сайт сам по себе не умеет хранить сессии и отдавать защищённый API
+- для входа по ID и паролю, мониторинга, скачивания модулей и exe нужен запущенный FastAPI backend
+
+5. Как соединить программу с backend
+
+Откройте в desktop-программе:
+- Настройки
+
+Заполните поле:
+- Server API URL
+
+Для локальной проверки:
+- http://127.0.0.1:8000
+
+Для опубликованного backend:
+- https://api.minecraftcoach.pl
+
+Сохраните настройки.
+
+После этого desktop-программа сможет:
+- отправлять снимок текущей сессии на сервер
+- синхронизировать данные по program_id
+- работать с удалённым просмотром через сайт
+
+6. Как работает вход на сайте
+
+На сайте пользователь вводит:
+- ID сессии / program_id
+- пароль родителя
+
+Backend:
+- не доверяет фронтенду
+- проверяет login на сервере
+- хранит только hash пароля
+- применяет rate limit, throttling, IP ban и idempotency key
+
+7. Как обновлять программу и модули на сайте
+
+Если backend отдаёт загрузки:
+- замените файл dist/MinecraftCoach.exe на новую сборку
+- добавьте или обновите папки модулей внутри modules/
+
+После этого сайт и API начнут отдавать новую версию автоматически.
+
+8. Что лучше делать дальше
+
+Для реальной интернет-работы лучше держать backend на отдельном VPS или сервере с Python, а не только на статическом хостинге.
+
+Рекомендуемая схема:
+- minecraftcoach.pl -> сайт
+- api.minecraftcoach.pl -> FastAPI backend
+- PostgreSQL вашего хостинга -> база данных

@@ -69,7 +69,8 @@ img {
 }
 
 button,
-input {
+input,
+select {
   font: inherit;
 }
 
@@ -232,6 +233,44 @@ code {
   color: var(--text);
 }
 
+.nav-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.language-picker {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0.52rem 0.7rem 0.52rem 0.9rem;
+  border-radius: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.04);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+.language-picker span {
+  color: #c7defd;
+  font-size: 0.76rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.language-picker select {
+  min-width: 132px;
+  border: 0;
+  outline: none;
+  color: var(--text);
+  background: transparent;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
 .button {
   display: inline-flex;
   align-items: center;
@@ -344,9 +383,15 @@ code {
   align-items: center;
 }
 
+.hero h1,
+.section-heading h2,
+.quickstrip-panel h2 {
+  text-wrap: balance;
+}
+
 .hero h1 {
   font-size: clamp(2.5rem, 5.3vw, 4.9rem);
-  max-width: 11ch;
+  max-width: 12.4ch;
 }
 
 .hero-lead,
@@ -412,67 +457,142 @@ code {
   position: relative;
 }
 
-.hero-stage {
+.hero-scene {
   position: relative;
-  min-height: 640px;
-  padding: 34px 14px 24px 14px;
+  overflow: hidden;
+  padding: 18px;
 }
 
-.hero-stage::before {
+.hero-scene::before {
   content: "";
   position: absolute;
-  inset: 0 4% 6% 8%;
-  border-radius: 36px;
+  inset: 6% 7%;
+  border-radius: 32px;
   background:
-    radial-gradient(circle at center, rgba(81, 216, 255, 0.18), transparent 34%),
-    linear-gradient(90deg, transparent 0 8%, rgba(81, 216, 255, 0.28) 8% 8.4%, transparent 8.4% 52%, rgba(159, 112, 255, 0.22) 52% 52.4%, transparent 52.4% 100%),
-    linear-gradient(180deg, transparent 0 18%, rgba(81, 216, 255, 0.24) 18% 18.4%, transparent 18.4% 72%, rgba(255, 216, 77, 0.18) 72% 72.4%, transparent 72.4% 100%);
+    radial-gradient(circle at center, rgba(81, 216, 255, 0.16), transparent 34%),
+    linear-gradient(90deg, transparent 0 8%, rgba(81, 216, 255, 0.24) 8% 8.35%, transparent 8.35% 52%, rgba(159, 112, 255, 0.2) 52% 52.35%, transparent 52.35% 100%),
+    linear-gradient(180deg, transparent 0 18%, rgba(81, 216, 255, 0.22) 18% 18.35%, transparent 18.35% 72%, rgba(255, 216, 77, 0.15) 72% 72.35%, transparent 72.35% 100%);
   opacity: 0.56;
-  filter: drop-shadow(0 0 44px rgba(81, 216, 255, 0.14));
+  filter: drop-shadow(0 0 44px rgba(81, 216, 255, 0.16));
+  pointer-events: none;
 }
 
-.hero-frame {
+.hero-scene-shell {
   position: relative;
-  z-index: 1;
   margin-left: auto;
   width: min(100%, 720px);
-  padding: 12px;
-  border-radius: 34px;
-  border: 1px solid rgba(81, 216, 255, 0.34);
-  background:
-    linear-gradient(180deg, rgba(11, 24, 54, 0.82), rgba(8, 17, 39, 0.94));
+  z-index: 1;
+}
+
+.hero-scene-image {
+  width: 100%;
+  border-radius: 28px;
   box-shadow:
-    0 0 0 1px rgba(81, 216, 255, 0.12) inset,
+    0 0 0 1px rgba(81, 216, 255, 0.16) inset,
     0 26px 70px rgba(0, 0, 0, 0.34),
     0 0 60px rgba(81, 216, 255, 0.12);
 }
 
-.hero-frame img {
-  width: 100%;
-  border-radius: 24px;
-}
-
-.floating-card {
+.hero-scene-overlay {
   position: absolute;
   z-index: 2;
-  padding: 16px 18px;
-  border-radius: 22px;
-  border: 1px solid var(--line-strong);
-  background: linear-gradient(180deg, rgba(10, 21, 45, 0.88), rgba(8, 17, 38, 0.96));
+  backdrop-filter: blur(18px);
   box-shadow: var(--shadow-soft);
 }
 
-.pause-badge {
-  top: 18%;
-  left: -1%;
+.hero-pause-chip {
+  top: 41%;
+  left: 7%;
   display: flex;
   align-items: center;
-  gap: 14px;
-  min-width: 214px;
+  gap: 12px;
+  max-width: 44%;
+  padding: 14px 16px;
+  border-radius: 22px;
+  border: 1px solid rgba(81, 216, 255, 0.28);
+  background: linear-gradient(180deg, rgba(10, 21, 45, 0.9), rgba(8, 17, 38, 0.96));
 }
 
-.pause-badge strong,
-.quiz-float strong,
+.hero-pause-chip__icon {
+  width: 52px;
+  height: 52px;
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  border-radius: 16px;
+  color: #11131a;
+  background: linear-gradient(135deg, var(--gold), #ffd146);
+  box-shadow: 0 0 22px rgba(255, 216, 77, 0.42);
+  font-family: "Unbounded", sans-serif;
+  font-size: 1.08rem;
+}
+
+.hero-pause-chip__copy {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.hero-pause-chip__copy span {
+  color: var(--muted-strong);
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.hero-pause-chip__copy small {
+  color: rgba(255, 255, 255, 0.68);
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.hero-quiz-card {
+  top: 16%;
+  right: 6%;
+  width: 37%;
+  min-width: 245px;
+  padding: 18px 18px 20px;
+  border-radius: 24px;
+  border: 2px solid rgba(255, 216, 77, 0.46);
+  background: linear-gradient(180deg, rgba(25, 45, 103, 0.92), rgba(18, 34, 80, 0.98));
+  box-shadow:
+    0 0 0 1px rgba(255, 216, 77, 0.16) inset,
+    0 16px 34px rgba(0, 0, 0, 0.34),
+    0 0 20px rgba(255, 216, 77, 0.14);
+}
+
+.hero-quiz-card__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.hero-quiz-timer {
+  padding: 0.34rem 0.78rem;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 216, 77, 0.28);
+  background: rgba(7, 16, 36, 0.36);
+  color: #fff1ad;
+  font-family: "Unbounded", sans-serif;
+  font-size: 0.74rem;
+}
+
+.hero-quiz-close {
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  color: rgba(255, 255, 255, 0.7);
+  background: rgba(255, 255, 255, 0.06);
+  font-size: 1rem;
+}
+
+.hero-quiz-card h3,
+.hero-pause-chip__copy strong,
 .download-card h3,
 .integration-card h3,
 .integration-note strong,
@@ -488,28 +608,53 @@ code {
   font-family: "Unbounded", sans-serif;
 }
 
-.pause-badge span:last-child,
-.quiz-float p {
-  color: var(--muted);
+.hero-quiz-card h3 {
+  margin: 0;
+  font-size: 1rem;
+  line-height: 1.24;
 }
 
-.pause-icon {
-  width: 48px;
-  height: 48px;
+.hero-quiz-options {
   display: grid;
-  place-items: center;
-  border-radius: 16px;
-  color: #11131a;
-  background: linear-gradient(135deg, var(--gold), #ffd146);
-  box-shadow: 0 0 22px rgba(255, 216, 77, 0.42);
-  font-family: "Unbounded", sans-serif;
-  font-size: 1.1rem;
+  gap: 10px;
+  margin-top: 16px;
 }
 
-.quiz-float {
-  right: -2%;
-  bottom: 10%;
-  max-width: 260px;
+.hero-quiz-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #eff4ff;
+  font-size: 0.96rem;
+  font-weight: 700;
+}
+
+.hero-quiz-option span {
+  width: 16px;
+  height: 16px;
+  flex: 0 0 auto;
+  border-radius: 999px;
+  border: 1.5px solid rgba(229, 237, 255, 0.7);
+}
+
+.hero-quiz-cta {
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.hero-quiz-cta strong {
+  display: block;
+  font-family: "Unbounded", sans-serif;
+  font-size: 1rem;
+  color: #ffd84d;
+}
+
+.hero-quiz-cta p {
+  margin: 8px 0 0;
+  color: #eff4ff;
+  font-size: 0.88rem;
+  line-height: 1.3;
 }
 
 .quickstrip-panel {
@@ -1115,21 +1260,12 @@ code {
     grid-template-columns: 1fr;
   }
 
-  .hero-stage {
-    min-height: 0;
-    padding-top: 16px;
-  }
-
-  .hero-frame {
+  .hero-scene-shell {
     margin: 0 auto;
   }
 
-  .pause-badge {
-    left: 2%;
-  }
-
-  .quiz-float {
-    right: 2%;
+  .hero-scene {
+    padding: 16px;
   }
 
   .module-grid,
@@ -1147,12 +1283,34 @@ code {
     min-height: 72px;
   }
 
+  .nav-actions {
+    width: 100%;
+    justify-content: space-between;
+  }
+
   .container {
     width: min(100%, calc(100% - 20px));
   }
 
   .hero {
     padding-top: 40px;
+  }
+
+  .hero-scene {
+    padding: 14px;
+  }
+
+  .hero-pause-chip {
+    top: 40%;
+    left: 6%;
+    max-width: 46%;
+  }
+
+  .hero-quiz-card {
+    top: 14%;
+    right: 5%;
+    width: 39%;
+    min-width: 220px;
   }
 
   .hero-signals,
@@ -1207,31 +1365,123 @@ code {
 }
 
 @media (max-width: 640px) {
-  .button,
-  .button-small {
-    width: 100%;
-  }
-
   .hero-actions,
   .monitor-actions {
     flex-direction: column;
   }
 
-  .floating-card {
-    position: static;
-    margin-top: 14px;
+  .hero-actions .button,
+  .download-actions .button,
+  .monitor-actions .button {
+    width: 100%;
   }
 
-  .hero-stage {
-    display: flex;
-    flex-direction: column;
-    gap: 14px;
-    padding-left: 0;
-    padding-right: 0;
+  .nav {
+    min-height: auto;
+    padding: 12px 0;
+    flex-wrap: wrap;
   }
 
-  .hero-stage::before {
-    inset: 4% 0 0 0;
+  .nav-actions {
+    gap: 10px;
+  }
+
+  .language-picker {
+    flex: 1 1 220px;
+    justify-content: space-between;
+  }
+
+  .hero-scene {
+    padding: 12px;
+  }
+
+  .hero-scene::before {
+    inset: 4% 3%;
+  }
+
+  .hero-pause-chip {
+    top: 41%;
+    left: 5%;
+    gap: 10px;
+    max-width: 48%;
+    padding: 10px 12px;
+    border-radius: 18px;
+  }
+
+  .hero-pause-chip__icon {
+    width: 38px;
+    height: 38px;
+    border-radius: 12px;
+    font-size: 0.92rem;
+  }
+
+  .hero-pause-chip__copy strong {
+    font-size: 0.78rem;
+  }
+
+  .hero-pause-chip__copy span {
+    font-size: 0.62rem;
+  }
+
+  .hero-pause-chip__copy small {
+    font-size: 0.52rem;
+  }
+
+  .hero-quiz-card {
+    top: 10%;
+    right: 4%;
+    width: 43%;
+    min-width: 0;
+    padding: 12px 12px 14px;
+    border-radius: 18px;
+  }
+
+  .hero-quiz-card__top {
+    margin-bottom: 10px;
+  }
+
+  .hero-quiz-timer {
+    padding: 0.18rem 0.5rem;
+    font-size: 0.6rem;
+  }
+
+  .hero-quiz-close {
+    width: 20px;
+    height: 20px;
+    font-size: 0.82rem;
+  }
+
+  .hero-quiz-card h3 {
+    font-size: 0.76rem;
+  }
+
+  .hero-quiz-options {
+    gap: 6px;
+    margin-top: 10px;
+  }
+
+  .hero-quiz-option {
+    gap: 8px;
+    font-size: 0.68rem;
+  }
+
+  .hero-quiz-option span {
+    width: 12px;
+    height: 12px;
+  }
+
+  .hero-quiz-cta {
+    margin-top: 10px;
+    padding-top: 10px;
+  }
+
+  .hero-quiz-cta strong {
+    font-size: 0.8rem;
+  }
+
+  .hero-quiz-cta p {
+    font-size: 0.63rem;
+    line-height: 1.22;
   }
 
   .brand-icon {

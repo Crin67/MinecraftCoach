@@ -160,8 +160,16 @@ def dump_model(model: BaseModel) -> dict[str, Any]:
     return model.dict()
 
 
-def localized_value(item: dict[str, Any], base: str) -> str:
+def localized_value(item: dict[str, Any], base: str, preferred_languages: list[str] | None = None) -> str:
+    codes: list[str] = []
+    for code in preferred_languages or []:
+        normalized = str(code or "").strip().lower()
+        if normalized and normalized not in codes:
+            codes.append(normalized)
     for code in ("ru", "pl", "en"):
+        if code not in codes:
+            codes.append(code)
+    for code in codes:
         value = item.get(f"{base}_{code}")
         if value:
             return str(value)
@@ -316,14 +324,16 @@ def current_downloadable_app() -> Path | None:
     return executables[0] if executables else None
 
 
-def module_catalog() -> list[dict[str, Any]]:
+def module_catalog(lang: str | None = None) -> list[dict[str, Any]]:
     catalog: list[dict[str, Any]] = []
+    normalized_lang = str(lang or "").strip().lower().replace("_", "-").split("-", 1)[0]
+    preferred_languages = [normalized_lang] if normalized_lang else []
     for item in load_modules(MODULES_DIR):
         slug = str(item.get("slug") or item.get("id") or "").strip()
         if not slug:
             continue
-        title = localized_value(item, "title") or slug
-        description = localized_value(item, "description")
+        title = localized_value(item, "title", preferred_languages=preferred_languages) or slug
+        description = localized_value(item, "description", preferred_languages=preferred_languages)
         manifest_path = Path(str(item.get("manifest_path") or ""))
         folder = manifest_path.parent if manifest_path.exists() else MODULES_DIR / slug
         topic_count = len(item.get("topics") or [])
@@ -413,7 +423,7 @@ def health() -> dict[str, Any]:
 
 
 @app.get("/downloads/catalog")
-def downloads_catalog() -> dict[str, Any]:
+def downloads_catalog(lang: str | None = None) -> dict[str, Any]:
     app_file = current_downloadable_app()
     app_payload: dict[str, Any] = {
         "available": False,
@@ -432,7 +442,7 @@ def downloads_catalog() -> dict[str, Any]:
         )
     modules = [
         {key: value for key, value in item.items() if key != "folder"}
-        for item in module_catalog()
+        for item in module_catalog(lang=lang)
     ]
     return {
         "ok": True,

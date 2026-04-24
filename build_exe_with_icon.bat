@@ -40,6 +40,12 @@ if not exist "minecraft_homework_overlay_v23.py" (
     exit /b 1
 )
 
+if not exist "version_info.txt" (
+    echo version_info.txt not found in this folder.
+    pause
+    exit /b 1
+)
+
 echo Cleaning old build...
 if exist build rmdir /s /q build
 if exist dist rmdir /s /q dist
@@ -47,9 +53,12 @@ if exist dist rmdir /s /q dist
 echo Building EXE...
 py -m PyInstaller ^
   --noconfirm ^
+  --clean ^
   --onefile ^
+  --noupx ^
   --name MinecraftCoach_debug ^
   --icon=app.ico ^
+  --version-file version_info.txt ^
   --add-data "app.ico;." ^
   --add-data "coach_seed_v22.db;." ^
   --add-data "Electryk;Electryk" ^

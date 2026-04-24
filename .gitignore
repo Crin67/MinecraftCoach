@@ -23,6 +23,7 @@ env/
 .env.*
 !.env.example
 !.env.sample
+server/backend.env
 
 # Build and packaging output
 build/

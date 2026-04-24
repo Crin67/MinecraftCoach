@@ -158,9 +158,13 @@ class ParentPanelV23(tk.Toplevel):
         self.geometry("1140x780")
         self.configure(bg=BG)
         self.resizable(True, True)
+        self.transient(app.root)
+        self.app.suspend_window_lock(True)
         self.protocol("WM_DELETE_WINDOW", self.close_panel)
+        self.grab_set()
         self.build()
         self.position_near_parent()
+        self.after(80, self.bring_to_front)
         self.show("overview")
 
     def tt(self, key: str) -> str:
@@ -174,6 +178,15 @@ class ParentPanelV23(tk.Toplevel):
         x = max(20, self.app.root.winfo_rootx() + 40)
         y = max(20, self.app.root.winfo_rooty() + 36)
         self.geometry(f"{self.winfo_width()}x{self.winfo_height()}+{x}+{y}")
+        self.bring_to_front()
+
+    def bring_to_front(self) -> None:
+        if not self.winfo_exists():
+            return
+        try:
+            self.attributes("-topmost", True)
+        except Exception:
+            pass
         self.lift()
         self.focus_force()
 
@@ -2211,9 +2224,14 @@ class ParentPanelV23(tk.Toplevel):
 
     def close_panel(self) -> None:
         self.save_settings(show_message=False, close_panel=False, auto_save=True)
+        try:
+            self.grab_release()
+        except Exception:
+            pass
         if getattr(self.app, "parent_panel_window", None) is self:
             self.app.parent_panel_window = None
         self.destroy()
+        self.app.root.after(20, lambda: self.app.suspend_window_lock(False))
 
     def open_modules_folder(self) -> None:
         self.app.db.modules_dir.mkdir(parents=True, exist_ok=True)
@@ -2334,6 +2352,8 @@ class MinecraftCoachV23:
         self.root.minsize(960, 640)
         self.root.protocol("WM_DELETE_WINDOW", self.request_close)
         self.root.bind("<Escape>", lambda _event: "break")
+        self.root.bind("<Unmap>", self.on_root_unmap, add="+")
+        self.root.bind("<FocusOut>", self.on_root_focus_out, add="+")
 
         self.db = LocalDB(
             DB_FILE,
@@ -2368,6 +2388,10 @@ class MinecraftCoachV23:
         self.overlay_payload: dict | None = None
         self.layout_after_id = None
         self.geometry_after_id = None
+        self.window_lock_applied = False
+        self.window_lock_suspended = False
+        self.window_restore_geometry = ""
+        self.window_restore_state = "normal"
         self.manual_pause_after_id = None
         self.remote_sync_loop_after_id = None
         self.remote_sync_debounce_after_id = None
@@ -2797,18 +2821,123 @@ class MinecraftCoachV23:
         except Exception:
             return
 
+    def lock_screen_geometry(self) -> str:
+        return f"{self.root.winfo_screenwidth()}x{self.root.winfo_screenheight()}+0+0"
+
+    def should_enforce_window_lock(self) -> bool:
+        return bool(self.break_lock_active and not self.password_dialog_open and not self.window_lock_suspended)
+
+    def suspend_window_lock(self, suspended: bool) -> None:
+        self.window_lock_suspended = suspended
+        self.apply_window_lock_state(force=True)
+
+    def apply_window_lock_state(self, *, force: bool = False) -> None:
+        locked = self.should_enforce_window_lock()
+        if locked == self.window_lock_applied and not force:
+            return
+        if locked:
+            if not self.window_restore_geometry:
+                try:
+                    self.window_restore_state = str(self.root.state())
+                except Exception:
+                    self.window_restore_state = "normal"
+                try:
+                    self.window_restore_geometry = self.root.geometry()
+                except Exception:
+                    self.window_restore_geometry = "1320x840"
+            self.window_lock_applied = True
+            try:
+                self.root.resizable(False, False)
+            except Exception:
+                pass
+            try:
+                self.root.overrideredirect(True)
+            except Exception:
+                pass
+            self.enforce_window_lock()
+            return
+
+        was_locked = self.window_lock_applied
+        self.window_lock_applied = False
+        try:
+            self.root.overrideredirect(False)
+        except Exception:
+            pass
+        try:
+            self.root.resizable(True, True)
+        except Exception:
+            pass
+        try:
+            self.root.attributes("-topmost", False)
+        except Exception:
+            pass
+        if was_locked:
+            try:
+                if self.window_restore_state == "zoomed":
+                    self.root.state("zoomed")
+                elif self.window_restore_geometry:
+                    self.root.geometry(self.window_restore_geometry)
+            except Exception:
+                pass
+        self.window_restore_geometry = ""
+        self.window_restore_state = "normal"
+
+    def enforce_window_lock(self) -> None:
+        if not self.should_enforce_window_lock():
+            self.apply_window_lock_state(force=True)
+            return
+        if not self.window_lock_applied:
+            self.apply_window_lock_state(force=True)
+            if not self.should_enforce_window_lock():
+                return
+        try:
+            if self.root.state() == "iconic":
+                self.root.deiconify()
+        except Exception:
+            try:
+                self.root.deiconify()
+            except Exception:
+                pass
+        try:
+            self.root.attributes("-topmost", True)
+        except Exception:
+            pass
+        try:
+            self.root.geometry(self.lock_screen_geometry())
+        except Exception:
+            pass
+        self.root.lift()
+        try:
+            self.root.focus_force()
+        except Exception:
+            pass
+
     def on_root_configure(self, event=None) -> None:
         if event is not None and event.widget is not self.root:
             return
         if self.layout_after_id:
             self.root.after_cancel(self.layout_after_id)
         self.layout_after_id = self.root.after(120, self.apply_responsive_layout)
+        if self.should_enforce_window_lock():
+            self.root.after(40, self.enforce_window_lock)
         if self.geometry_after_id:
             self.root.after_cancel(self.geometry_after_id)
         self.geometry_after_id = self.root.after(500, self.remember_window_geometry)
 
+    def on_root_unmap(self, event=None) -> None:
+        if event is not None and event.widget is not self.root:
+            return
+        if self.should_enforce_window_lock():
+            self.root.after(40, self.enforce_window_lock)
+
+    def on_root_focus_out(self, event=None) -> None:
+        if self.should_enforce_window_lock():
+            self.root.after(120, self.enforce_window_lock)
+
     def remember_window_geometry(self) -> None:
         self.geometry_after_id = None
+        if self.window_lock_applied:
+            return
         try:
             if self.root.state() != "normal":
                 return
@@ -3501,21 +3630,13 @@ class MinecraftCoachV23:
             self.show_task(self.current_break_tasks[0])
 
     def set_break_lock(self, active: bool) -> None:
-        was_active = self.break_lock_active
+        previous = self.break_lock_active
         self.break_lock_active = active
-        if self.password_dialog_open:
-            return
-        try:
-            self.root.attributes("-topmost", active)
-        except Exception:
-            pass
-        if active and not was_active:
-            self.root.deiconify()
-            self.root.lift()
-            try:
-                self.root.focus_force()
-            except Exception:
-                pass
+        expected_applied = self.should_enforce_window_lock()
+        if previous != active or self.window_lock_applied != expected_applied:
+            self.apply_window_lock_state(force=True)
+        if active and self.should_enforce_window_lock():
+            self.root.after(40, self.enforce_window_lock)
 
     def prompt_password_dialog(self, title: str, prompt: str) -> str | None:
         if self.password_dialog and self.password_dialog.winfo_exists():
@@ -3524,12 +3645,8 @@ class MinecraftCoachV23:
             return None
 
         result: dict[str, str | None] = {"value": None}
-        restore_lock = self.break_lock_active
         self.password_dialog_open = True
-        try:
-            self.root.attributes("-topmost", False)
-        except Exception:
-            pass
+        self.apply_window_lock_state(force=True)
         dialog = tk.Toplevel(self.root)
         self.password_dialog = dialog
         dialog.title(title)
@@ -3600,7 +3717,7 @@ class MinecraftCoachV23:
         self.root.wait_window(dialog)
         self.password_dialog = None
         self.password_dialog_open = False
-        self.set_break_lock(restore_lock)
+        self.apply_window_lock_state(force=True)
         return result["value"]
 
     def input_hint_for_task(self, task: dict) -> str:
@@ -4168,8 +4285,7 @@ class MinecraftCoachV23:
 
     def ask_parent_panel(self) -> None:
         if self.parent_panel_window and self.parent_panel_window.winfo_exists():
-            self.parent_panel_window.lift()
-            self.parent_panel_window.focus_force()
+            self.parent_panel_window.bring_to_front()
             return
         password = self.prompt_password_dialog(self.tt("password"), self.tt("enter_parent_password"))
         if password is None:
@@ -4225,6 +4341,10 @@ class MinecraftCoachV23:
     def tick_loop(self) -> None:
         if self.current_task or self.lesson_blocks:
             self.set_break_lock(True)
+        elif not self.break_lock_active and self.window_lock_applied:
+            self.apply_window_lock_state(force=True)
+        if self.should_enforce_window_lock():
+            self.enforce_window_lock()
         self.root.after(1000, self.tick_loop)
 
 
