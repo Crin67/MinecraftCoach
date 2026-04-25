@@ -45,6 +45,10 @@ body {
   position: relative;
 }
 
+body.modal-open {
+  overflow: hidden;
+}
+
 body::before {
   content: "";
   position: fixed;
@@ -241,6 +245,145 @@ code {
   flex-wrap: wrap;
 }
 
+.language-menu {
+  position: relative;
+}
+
+.language-trigger {
+  min-width: 196px;
+  padding: 0.72rem 0.92rem;
+  justify-content: space-between;
+  gap: 12px;
+  font-family: "Manrope", "Segoe UI", sans-serif;
+  font-weight: 700;
+  letter-spacing: 0;
+}
+
+.language-trigger__caption {
+  color: #c7defd;
+  font-size: 0.74rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.language-trigger strong {
+  flex: 1 1 auto;
+  min-width: 0;
+  text-align: left;
+  color: var(--text);
+  font-size: 0.96rem;
+  font-weight: 800;
+}
+
+.language-trigger__caret {
+  color: rgba(255, 255, 255, 0.72);
+  font-size: 0.95rem;
+  transition: transform 0.18s ease;
+}
+
+.language-trigger[aria-expanded="true"] .language-trigger__caret {
+  transform: rotate(180deg);
+}
+
+.language-menu-panel {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  z-index: 25;
+  min-width: 220px;
+  padding: 8px;
+  border: 1px solid rgba(120, 170, 255, 0.18);
+  border-radius: 22px;
+  background: rgba(8, 16, 36, 0.96);
+  box-shadow: var(--shadow-soft);
+  backdrop-filter: blur(20px);
+}
+
+.language-menu-option,
+.language-modal__option {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  border: 0;
+  border-radius: 16px;
+  padding: 0.86rem 0.95rem;
+  background: transparent;
+  color: #eef3ff;
+  font-size: 0.98rem;
+  font-weight: 700;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    background 0.18s ease,
+    color 0.18s ease,
+    transform 0.18s ease;
+}
+
+.language-menu-option:hover,
+.language-modal__option:hover,
+.language-menu-option:focus-visible,
+.language-modal__option:focus-visible {
+  background: rgba(81, 216, 255, 0.12);
+  color: #ffffff;
+  outline: none;
+}
+
+.language-menu-option.is-active,
+.language-modal__option.is-active {
+  background: linear-gradient(135deg, rgba(81, 216, 255, 0.18), rgba(159, 112, 255, 0.14));
+  color: #ffffff;
+}
+
+.language-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: rgba(3, 8, 20, 0.72);
+  backdrop-filter: blur(18px);
+}
+
+.language-modal__dialog {
+  width: min(620px, 100%);
+  padding: 30px;
+}
+
+.language-modal__dialog h2 {
+  margin: 18px 0 0;
+  font-family: "Unbounded", sans-serif;
+  font-size: clamp(1.8rem, 4vw, 2.6rem);
+  line-height: 1.1;
+  letter-spacing: -0.04em;
+}
+
+.language-modal__text {
+  margin: 16px 0 0;
+  color: var(--muted);
+  font-size: 1rem;
+}
+
+.language-modal__grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.language-modal__option {
+  padding: 0.95rem 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+#language-modal-continue {
+  margin-top: 18px;
+}
+
 .language-picker {
   display: inline-flex;
   align-items: center;
@@ -378,9 +521,14 @@ code {
 .hero {
   padding: 72px 0 34px;
   display: grid;
-  grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr);
-  gap: 34px;
+  grid-template-columns: minmax(0, 0.88fr) minmax(0, 1.12fr);
+  gap: clamp(40px, 5vw, 72px);
   align-items: center;
+}
+
+.hero-copy,
+.hero-visual {
+  min-width: 0;
 }
 
 .hero h1,
@@ -390,8 +538,23 @@ code {
 }
 
 .hero h1 {
-  font-size: clamp(2.5rem, 5.3vw, 4.9rem);
-  max-width: 12.4ch;
+  font-size: clamp(2.2rem, 4.9vw, 4.4rem);
+  max-width: 10.8ch;
+  text-wrap: initial;
+  overflow-wrap: anywhere;
+}
+
+[data-language="ru"] .hero h1,
+[data-language="uk"] .hero h1,
+[data-language="de"] .hero h1 {
+  font-size: clamp(2rem, 4.25vw, 3.95rem);
+  max-width: 10.2ch;
+}
+
+[data-language="pl"] .hero h1,
+[data-language="it"] .hero h1 {
+  font-size: clamp(2.05rem, 4.35vw, 4.05rem);
+  max-width: 10.7ch;
 }
 
 .hero-lead,
@@ -413,7 +576,7 @@ code {
 .hero-lead {
   margin: 20px 0 0;
   font-size: 1.08rem;
-  max-width: 58ch;
+  max-width: 54ch;
 }
 
 .hero-actions {
@@ -1389,6 +1552,34 @@ code {
   .language-picker {
     flex: 1 1 220px;
     justify-content: space-between;
+  }
+
+  .language-menu {
+    flex: 1 1 220px;
+  }
+
+  .language-trigger {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .language-menu-panel {
+    left: 0;
+    right: auto;
+    min-width: 0;
+    width: 100%;
+  }
+
+  .language-modal {
+    padding: 16px;
+  }
+
+  .language-modal__dialog {
+    padding: 22px;
+  }
+
+  .language-modal__grid {
+    grid-template-columns: 1fr;
   }
 
   .hero-scene {

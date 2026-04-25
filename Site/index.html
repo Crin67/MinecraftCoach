@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Minecraft Coach - обучение прямо во время игры</title>
+  <title>Minecraft Coach - short learning breaks during Minecraft</title>
   <meta
     name="description"
-    content="Minecraft Coach вовремя ставит игру на паузу, показывает ребёнку мини-уроки и задания, а родителю даёт мониторинг сессии по ID программы и паролю."
+    content="Minecraft Coach is a Windows app that pauses Minecraft at chosen intervals, shows a short quiz or mini-lesson, and lets parents review the session with a program ID and password."
   />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -27,64 +27,98 @@
         <span class="brand-icon" aria-hidden="true"></span>
         <span class="brand-text">
           <strong>Minecraft Coach</strong>
-          <small data-i18n="brand.tagline">Пауза. Учёба. Продолжение.</small>
+          <small data-i18n="brand.tagline">Short learning breaks during play.</small>
         </span>
       </a>
 
-      <nav class="menu" aria-label="Главная навигация" data-i18n-aria-label="nav.ariaLabel">
-        <a href="#download" data-i18n="nav.download">Скачать</a>
-        <a href="#modules" data-i18n="nav.modules">Модули</a>
-        <a href="#how-it-works" data-i18n="nav.howItWorks">Как работает</a>
-        <a href="#monitoring" data-i18n="nav.monitoring">Мониторинг</a>
-        <a href="#updates" data-i18n="nav.updates">Обновление</a>
+      <nav class="menu" aria-label="Main navigation" data-i18n-aria-label="nav.ariaLabel">
+        <a href="#download" data-i18n="nav.download">Download</a>
+        <a href="#how-it-works" data-i18n="nav.howItWorks">How it works</a>
+        <a href="#modules" data-i18n="nav.modules">Learning packs</a>
+        <a href="#monitoring" data-i18n="nav.monitoring">Parent view</a>
       </nav>
 
       <div class="nav-actions">
-        <label class="language-picker" for="language-select">
-          <span data-i18n="language.label">Язык</span>
-          <select id="language-select" aria-label="Выбор языка" data-i18n-aria-label="language.selectAria">
-            <option value="ru">Русский</option>
-            <option value="pl">Polski</option>
-            <option value="en">English</option>
-            <option value="it">Italiano</option>
-            <option value="de">Deutsch</option>
-            <option value="uk">Українська</option>
-          </select>
-        </label>
+        <div class="language-menu">
+          <button
+            id="language-trigger"
+            class="language-trigger button button-outline button-small"
+            type="button"
+            aria-haspopup="true"
+            aria-expanded="false"
+            aria-label="Choose site language"
+            data-i18n-aria-label="language.selectAria"
+          >
+            <span class="language-trigger__caption" data-i18n="language.label">Language</span>
+            <strong id="language-current-label">English</strong>
+            <span class="language-trigger__caret" aria-hidden="true">▾</span>
+          </button>
 
-        <a class="button button-outline button-small" href="#monitoring" data-i18n="nav.login">Войти по ID</a>
+          <div id="language-menu-panel" class="language-menu-panel hidden" role="menu">
+            <button class="language-menu-option" type="button" data-language-choice="en">English</button>
+            <button class="language-menu-option" type="button" data-language-choice="ru">Русский</button>
+            <button class="language-menu-option" type="button" data-language-choice="pl">Polski</button>
+            <button class="language-menu-option" type="button" data-language-choice="it">Italiano</button>
+            <button class="language-menu-option" type="button" data-language-choice="de">Deutsch</button>
+            <button class="language-menu-option" type="button" data-language-choice="uk">Українська</button>
+          </div>
+        </div>
+
+        <a class="button button-outline button-small" href="#monitoring" data-i18n="nav.login">Open parent view</a>
       </div>
     </div>
   </header>
 
+  <div id="language-modal" class="language-modal hidden" aria-hidden="true">
+    <div class="language-modal__dialog panel" role="dialog" aria-modal="true" aria-labelledby="language-modal-title">
+      <span class="eyebrow" data-i18n="languagePrompt.eyebrow">Choose a language</span>
+      <h2 id="language-modal-title" data-i18n="languagePrompt.title">Which language would you like to use?</h2>
+      <p class="language-modal__text" data-i18n="languagePrompt.text">
+        You can change it later from the menu in the top-right corner. English is the default option.
+      </p>
+
+      <div class="language-modal__grid">
+        <button class="language-modal__option" type="button" data-language-choice="en">English</button>
+        <button class="language-modal__option" type="button" data-language-choice="ru">Русский</button>
+        <button class="language-modal__option" type="button" data-language-choice="pl">Polski</button>
+        <button class="language-modal__option" type="button" data-language-choice="it">Italiano</button>
+        <button class="language-modal__option" type="button" data-language-choice="de">Deutsch</button>
+        <button class="language-modal__option" type="button" data-language-choice="uk">Українська</button>
+      </div>
+
+      <button id="language-modal-continue" class="button button-secondary" type="button" data-i18n="languagePrompt.continue">
+        Continue in English
+      </button>
+    </div>
+  </div>
+
   <main id="top">
     <section class="hero container reveal">
       <div class="hero-copy">
-        <span class="eyebrow" data-i18n="hero.eyebrow">Обучение внутри игры</span>
-        <h1 data-i18n="hero.title">Приложение, которое вовремя останавливает игру и возвращает ребёнка к обучению.</h1>
+        <span class="eyebrow" data-i18n="hero.eyebrow">Made for short study breaks</span>
+        <h1 data-i18n="hero.title">Minecraft Coach pauses Minecraft, shows a short learning task, and then lets the child continue playing.</h1>
         <p class="hero-lead" data-i18n="hero.lead">
-          Minecraft Coach показывает темы, мини-уроки и задания прямо во время отдыха или игры,
-          считает статистику, хранит модули и позволяет родителю следить за конкретной сессией
-          по ID программы и паролю.
+          It is a Windows app for families who want to add short quizzes or mini-lessons to game time. The goal is simple:
+          pause for a moment, complete one small task, and return to the game.
         </p>
 
         <div class="hero-actions">
-          <a id="hero-download-btn" class="button button-primary" href="./MinecraftCoach.exe" data-i18n="hero.primaryCta">Скачать приложение</a>
-          <a class="button button-secondary" href="#how-it-works" data-i18n="hero.secondaryCta">Как это работает</a>
+          <a id="hero-download-btn" class="button button-primary" href="./MinecraftCoach.exe" data-i18n="hero.primaryCta">Download for Windows</a>
+          <a class="button button-secondary" href="#how-it-works" data-i18n="hero.secondaryCta">See how it works</a>
         </div>
 
         <div class="hero-signals">
           <article class="signal-card panel">
-            <span class="signal-label" data-i18n="hero.signalPauseLabel">Пауза</span>
-            <strong data-i18n="hero.signalPauseTitle">Урок в нужный момент</strong>
+            <span class="signal-label" data-i18n="hero.signalPauseLabel">Game pause</span>
+            <strong data-i18n="hero.signalPauseTitle">Minecraft stops at the chosen time</strong>
           </article>
           <article class="signal-card panel">
-            <span class="signal-label" data-i18n="hero.signalModulesLabel">Модули</span>
-            <strong data-i18n="hero.signalModulesTitle">Темы загружаются отдельно</strong>
+            <span class="signal-label" data-i18n="hero.signalModulesLabel">Short task</span>
+            <strong data-i18n="hero.signalModulesTitle">A question or mini-lesson appears</strong>
           </article>
           <article class="signal-card panel">
-            <span class="signal-label" data-i18n="hero.signalMonitoringLabel">Мониторинг</span>
-            <strong data-i18n="hero.signalMonitoringTitle">Родитель видит сессию онлайн</strong>
+            <span class="signal-label" data-i18n="hero.signalMonitoringLabel">Parent view</span>
+            <strong data-i18n="hero.signalMonitoringTitle">Session data can be reviewed later</strong>
           </article>
         </div>
       </div>
@@ -95,16 +129,16 @@
             <img
               class="hero-scene-image"
               src="./assets/hero-scene-base.png"
-              alt="Интерфейс Minecraft Coach с паузой игры и карточкой вопроса"
+              alt="Minecraft Coach interface showing a paused game and a short question"
               data-i18n-alt="hero.sceneAlt"
             />
 
             <div class="hero-scene-overlay hero-pause-chip">
               <span class="hero-pause-chip__icon" aria-hidden="true">II</span>
               <div class="hero-pause-chip__copy">
-                <strong data-i18n="hero.overlay.pauseTitle">Авто-пауза</strong>
-                <span data-i18n="hero.overlay.pauseLead">встраивается в игровой ритм</span>
-                <small data-i18n="hero.overlay.pausedState">Пауза</small>
+                <strong data-i18n="hero.overlay.pauseTitle">Auto pause</strong>
+                <span data-i18n="hero.overlay.pauseLead">fits into the game routine</span>
+                <small data-i18n="hero.overlay.pausedState">Paused</small>
               </div>
             </div>
 
@@ -114,7 +148,7 @@
                 <span class="hero-quiz-close" aria-hidden="true">×</span>
               </div>
 
-              <h3 data-i18n="hero.overlay.question">Сколько будет 2 + 2?</h3>
+              <h3 data-i18n="hero.overlay.question">What is 2 + 2?</h3>
 
               <div class="hero-quiz-options">
                 <div class="hero-quiz-option"><span aria-hidden="true"></span><strong data-i18n="hero.overlay.optionOne">2</strong></div>
@@ -124,8 +158,8 @@
               </div>
 
               <div class="hero-quiz-cta">
-                <strong data-i18n="hero.overlay.ctaTitle">Время учиться!</strong>
-                <p data-i18n="hero.overlay.ctaBody">Ответьте на вопрос, чтобы продолжить.</p>
+                <strong data-i18n="hero.overlay.ctaTitle">Time for a short task</strong>
+                <p data-i18n="hero.overlay.ctaBody">Answer to continue.</p>
               </div>
             </div>
           </div>
@@ -136,22 +170,22 @@
     <section class="container section reveal">
       <div class="quickstrip-panel panel">
         <div>
-          <span class="eyebrow eyebrow-soft" data-i18n="quick.eyebrow">Продуктовая логика</span>
-          <h2 data-i18n="quick.title">Один стек для Minecraft, видео, desktop-приложений и родительского контроля.</h2>
+          <span class="eyebrow eyebrow-soft" data-i18n="quick.eyebrow">Overview</span>
+          <h2 data-i18n="quick.title">What the app does</h2>
         </div>
 
         <div class="quickstrip-grid">
           <article class="quick-card">
-            <strong data-i18n="quick.cardOneTitle">Игровая пауза</strong>
-            <p data-i18n="quick.cardOneText">Ребёнок не выпадает из привычного сценария, а мягко переключается на учебный этап.</p>
+            <strong data-i18n="quick.cardOneTitle">Pauses the game</strong>
+            <p data-i18n="quick.cardOneText">The app stops Minecraft at the interval set by the adult.</p>
           </article>
           <article class="quick-card">
-            <strong data-i18n="quick.cardTwoTitle">Короткий цикл</strong>
-            <p data-i18n="quick.cardTwoText">Небольшие уроки и задания дают результат без перегруза и без долгих остановок.</p>
+            <strong data-i18n="quick.cardTwoTitle">Shows one short task</strong>
+            <p data-i18n="quick.cardTwoText">The child sees a short question or mini-lesson instead of a long interruption.</p>
           </article>
           <article class="quick-card">
-            <strong data-i18n="quick.cardThreeTitle">Контроль для родителя</strong>
-            <p data-i18n="quick.cardThreeText">Сайт показывает актуальное состояние конкретной сессии, статистику и настройки.</p>
+            <strong data-i18n="quick.cardThreeTitle">Saves session information</strong>
+            <p data-i18n="quick.cardThreeText">The app records progress so the session can be reviewed later.</p>
           </article>
         </div>
       </div>
@@ -159,23 +193,23 @@
 
     <section id="download" class="container section reveal">
       <div class="section-heading">
-        <span class="eyebrow" data-i18n="download.eyebrow">Скачать</span>
-        <h2 data-i18n="download.title">Всегда актуальная desktop-версия без ручного поиска файлов.</h2>
+        <span class="eyebrow" data-i18n="download.eyebrow">Download</span>
+        <h2 data-i18n="download.title">Start with the current Windows version</h2>
         <p class="section-lead" data-i18n="download.lead">
-          Сайт сам показывает текущую сборку приложения и даёт прямую ссылку на свежий `.exe`.
+          Download the desktop app first. If learning packs are available, you can add them separately afterward.
         </p>
       </div>
 
       <div class="download-layout">
         <article class="download-card panel">
-          <div class="card-label" data-i18n="download.cardLabel">Desktop build</div>
+          <div class="card-label" data-i18n="download.cardLabel">Windows app</div>
           <h3 id="app-title">Minecraft Coach Desktop</h3>
-          <p id="app-meta" class="muted" data-i18n="download.metaLoading">Проверяем наличие файла...</p>
+          <p id="app-meta" class="muted" data-i18n="download.metaLoading">Checking the current build...</p>
 
           <div class="download-actions">
-            <a id="download-app-btn" class="button button-primary" href="./MinecraftCoach.exe" data-i18n="download.button">Скачать .exe</a>
+            <a id="download-app-btn" class="button button-primary" href="./MinecraftCoach.exe" data-i18n="download.button">Download .exe</a>
             <span id="download-status" class="download-status" data-i18n="download.statusWaiting">
-              Если кнопка неактивна, значит актуальная сборка ещё не загружена в папку `dist/`.
+              If the button is inactive, the current build has not been uploaded yet.
             </span>
           </div>
         </article>
@@ -185,22 +219,22 @@
             <div class="stack-item">
               <span class="stack-icon stack-icon-cyan" aria-hidden="true"></span>
               <div>
-                <strong data-i18n="download.sideOneTitle">Каталог читается с backend API</strong>
-                <p data-i18n="download.sideOneText">Версия, размер файла и дата обновления подтягиваются автоматически.</p>
+                <strong data-i18n="download.sideOneTitle">Windows desktop app</strong>
+                <p data-i18n="download.sideOneText">The site shows the current build, file size, and update time.</p>
               </div>
             </div>
             <div class="stack-item">
               <span class="stack-icon stack-icon-gold" aria-hidden="true"></span>
               <div>
-                <strong data-i18n="download.sideTwoTitle">Hero-кнопка и раздел загрузки синхронизированы</strong>
-                <p data-i18n="download.sideTwoText">Пользователь всегда скачивает один и тот же актуальный билд из двух точек лендинга.</p>
+                <strong data-i18n="download.sideTwoTitle">Learning packs are optional</strong>
+                <p data-i18n="download.sideTwoText">You can start with the app alone and add packs later if you need ready-made topics.</p>
               </div>
             </div>
             <div class="stack-item">
               <span class="stack-icon stack-icon-magenta" aria-hidden="true"></span>
               <div>
-                <strong data-i18n="download.sideThreeTitle">Подходит для статического хостинга</strong>
-                <p data-i18n="download.sideThreeText">Фронт остаётся лёгким и быстрым, а функциональность берёт из уже существующих API-эндпойнтов.</p>
+                <strong data-i18n="download.sideThreeTitle">Parent view uses a program ID</strong>
+                <p data-i18n="download.sideThreeText">The session page is opened with the program ID and the parent password set in the app.</p>
               </div>
             </div>
           </div>
@@ -208,68 +242,12 @@
       </div>
     </section>
 
-    <section class="container section reveal">
-      <div class="section-heading center">
-        <span class="eyebrow" data-i18n="integration.eyebrow">Интеграции</span>
-        <h2 data-i18n="integration.title">Сайт визуально поддерживает идею мульти-приложения и умных учебных пауз.</h2>
-        <p class="section-lead" data-i18n="integration.lead">
-          Блок вдохновлён вашим референсом и объясняет, как одна логика управляет игрой, видео и desktop-активностью.
-        </p>
-      </div>
-
-      <div class="integration-layout">
-        <article class="integration-shot panel">
-          <img
-            src="./assets/integration-reference.png"
-            alt="Схема интеграции Minecraft Coach с Minecraft, YouTube и desktop apps"
-            loading="lazy"
-            data-i18n-alt="integration.imageAlt"
-          />
-        </article>
-
-        <div class="integration-copy">
-          <article class="integration-card panel">
-            <div class="integration-icon">MC</div>
-            <div>
-              <h3 data-i18n="integration.minecraftTitle">Minecraft</h3>
-              <p data-i18n="integration.minecraftText">Программа ставит игру на паузу, выводит вопрос или мини-урок и возвращает ребёнка обратно в игровой поток.</p>
-            </div>
-          </article>
-
-          <article class="integration-card panel">
-            <div class="integration-icon">YT</div>
-            <div>
-              <h3 data-i18n="integration.videoTitle">YouTube и видео</h3>
-              <p data-i18n="integration.videoText">Та же логика подходит для обучающих и развлекательных видео, когда нужен короткий учебный interrupt.</p>
-            </div>
-          </article>
-
-          <article class="integration-card panel">
-            <div class="integration-icon">OS</div>
-            <div>
-              <h3 data-i18n="integration.desktopTitle">Desktop apps</h3>
-              <p data-i18n="integration.desktopText">Сценарий масштабируется на другие приложения, сохраняя единый формат паузы, задания и продолжения.</p>
-            </div>
-          </article>
-
-          <article class="integration-note panel">
-            <strong data-i18n="integration.noteTitle">Главная мысль</strong>
-            <p data-i18n="integration.noteText">
-              Minecraft Coach выглядит не как обычный лендинг про “скачать exe”, а как технологическая система,
-              которая связывает игру, обучение и удалённый контроль в одном опыте.
-            </p>
-          </article>
-        </div>
-      </div>
-    </section>
-
     <section id="modules" class="container section reveal">
       <div class="section-heading">
-        <span class="eyebrow" data-i18n="modules.eyebrow">Модули</span>
-        <h2 data-i18n="modules.title">Выберите и скачайте нужный учебный модуль.</h2>
+        <span class="eyebrow" data-i18n="modules.eyebrow">Learning packs</span>
+        <h2 data-i18n="modules.title">Add a pack if you want ready-made topics and tasks</h2>
         <p class="section-lead" data-i18n-html="modules.lead">
-          Модули подгружаются с сервера автоматически. После скачивания достаточно положить их в папку
-          <code>modules</code> вашей программы.
+          Learning packs are downloaded separately. After downloading, place them in the <code>modules</code> folder used by the app.
         </p>
       </div>
 
@@ -294,8 +272,8 @@
 
     <section id="how-it-works" class="container section reveal">
       <div class="section-heading">
-        <span class="eyebrow" data-i18n="how.eyebrow">Как работает</span>
-        <h2 data-i18n="how.title">Путь от установки до обучающей сессии.</h2>
+        <span class="eyebrow" data-i18n="how.eyebrow">How it works</span>
+        <h2 data-i18n="how.title">What a family usually does</h2>
       </div>
 
       <div class="process-layout">
@@ -303,54 +281,54 @@
           <article class="step-card panel">
             <span class="step-index">1</span>
             <div>
-              <h3 data-i18n="how.stepOneTitle">Скачайте приложение</h3>
-              <p data-i18n="how.stepOneText">На сайте всегда лежит свежая сборка, так что пользователю не нужно искать правильную версию вручную.</p>
+              <h3 data-i18n="how.stepOneTitle">Install the app</h3>
+              <p data-i18n="how.stepOneText">Download the Windows version and start the program on the computer used for Minecraft.</p>
             </div>
           </article>
 
           <article class="step-card panel">
             <span class="step-index">2</span>
             <div>
-              <h3 data-i18n="how.stepTwoTitle">Добавьте нужные модули</h3>
-              <p data-i18n="how.stepTwoText">Темы и наборы контента загружаются отдельно, поэтому программу можно расширять без новой сборки сайта.</p>
+              <h3 data-i18n="how.stepTwoTitle">Choose settings</h3>
+              <p data-i18n="how.stepTwoText">An adult chooses the break interval, the number of tasks, and a parent password.</p>
             </div>
           </article>
 
           <article class="step-card panel">
             <span class="step-index">3</span>
             <div>
-              <h3 data-i18n="how.stepThreeTitle">Настройте интервалы и пароль</h3>
-              <p data-i18n="how.stepThreeText">Родитель выбирает темп учебных пауз, объём заданий и защищает доступ к мониторингу паролем.</p>
+              <h3 data-i18n="how.stepThreeTitle">Add learning packs if needed</h3>
+              <p data-i18n="how.stepThreeText">You can use ready-made packs or keep the setup simple and start with the app only.</p>
             </div>
           </article>
 
           <article class="step-card panel">
             <span class="step-index">4</span>
             <div>
-              <h3 data-i18n="how.stepFourTitle">Следите за сессией онлайн</h3>
-              <p data-i18n="how.stepFourText">По ID программы и паролю сайт показывает текущее состояние, статистику и последнее обновление.</p>
+              <h3 data-i18n="how.stepFourTitle">Use the parent view</h3>
+              <p data-i18n="how.stepFourText">Open the session page with the program ID and password to check what is happening during the session.</p>
             </div>
           </article>
         </div>
 
         <aside class="process-aside panel">
-          <div class="card-label" data-i18n="how.whyLabel">Почему это работает</div>
+          <div class="card-label" data-i18n="how.whyLabel">Useful to know</div>
           <div class="status-list">
             <div class="status-row">
-              <span data-i18n="how.statusOneLabel">Урок встроен в привычный игровой цикл</span>
-              <strong data-i18n="how.statusOneValue">без резкой смены контекста</strong>
+              <span data-i18n="how.statusOneLabel">The app is for Windows</span>
+              <strong data-i18n="how.statusOneValue">designed for desktop use</strong>
             </div>
             <div class="status-row">
-              <span data-i18n="how.statusTwoLabel">Референсный стиль держит ощущение технологичности</span>
-              <strong data-i18n="how.statusTwoValue">неон, схемы, глубокий тёмный фон</strong>
+              <span data-i18n="how.statusTwoLabel">Tasks are meant to be short</span>
+              <strong data-i18n="how.statusTwoValue">one small step before returning</strong>
             </div>
             <div class="status-row">
-              <span data-i18n="how.statusThreeLabel">Фронт связан с существующим backend</span>
-              <strong data-i18n="how.statusThreeValue">без переписывания API</strong>
+              <span data-i18n="how.statusThreeLabel">Learning packs are optional</span>
+              <strong data-i18n="how.statusThreeValue">the app can work without them</strong>
             </div>
             <div class="status-row">
-              <span data-i18n="how.statusFourLabel">Блоки легко расширять новыми разделами</span>
-              <strong data-i18n="how.statusFourValue">например, закрытыми roadmap-фичами</strong>
+              <span data-i18n="how.statusFourLabel">Parent view needs ID and password</span>
+              <strong data-i18n="how.statusFourValue">set inside the app</strong>
             </div>
           </div>
         </aside>
@@ -359,65 +337,64 @@
 
     <section id="monitoring" class="container section reveal">
       <div class="section-heading">
-        <span class="eyebrow" data-i18n="monitor.eyebrow">Мониторинг</span>
-        <h2 data-i18n="monitor.title">Подключение к конкретной сессии по ID программы.</h2>
+        <span class="eyebrow" data-i18n="monitor.eyebrow">Parent view</span>
+        <h2 data-i18n="monitor.title">Parents can open a session page with the program ID and password</h2>
         <p class="section-lead" data-i18n-html="monitor.lead">
-          Введите <strong>ID программы</strong> и <strong>пароль родителя</strong>. После входа сайт начнёт
-          автоматически обновлять состояние сессии.
+          Enter the <strong>program ID</strong> shown by the app and the <strong>parent password</strong> created during setup.
+          The page will then refresh the session data automatically.
         </p>
       </div>
 
       <div class="monitor-layout">
         <form id="monitor-login-form" class="monitor-login-card panel">
-          <label for="program-id" data-i18n="monitor.form.programIdLabel">ID программы</label>
+          <label for="program-id" data-i18n="monitor.form.programIdLabel">Program ID</label>
           <input
             id="program-id"
             name="program_id"
             type="text"
-            placeholder="Например AB12CD34"
+            placeholder="For example AB12CD34"
             required
             data-i18n-placeholder="monitor.form.programIdPlaceholder"
           />
 
-          <label for="parent-password" data-i18n="monitor.form.passwordLabel">Пароль родителя</label>
+          <label for="parent-password" data-i18n="monitor.form.passwordLabel">Parent password</label>
           <input
             id="parent-password"
             name="parent_password"
             type="password"
-            placeholder="Введите пароль"
+            placeholder="Enter password"
             required
             data-i18n-placeholder="monitor.form.passwordPlaceholder"
           />
 
-          <button class="button button-primary button-wide" type="submit" data-i18n="monitor.form.submit">Войти и открыть мониторинг</button>
+          <button class="button button-primary button-wide" type="submit" data-i18n="monitor.form.submit">Open session page</button>
           <p id="login-message" class="form-message"></p>
         </form>
 
         <div class="monitor-side">
           <article id="monitor-empty-state" class="monitor-preview panel">
-            <div class="card-label" data-i18n="monitor.emptyLabel">Онлайн-доступ</div>
-            <h3 data-i18n="monitor.emptyTitle">Родитель подключается по ID программы и паролю, без лишних экранов и сложного онбординга.</h3>
+            <div class="card-label" data-i18n="monitor.emptyLabel">Session page</div>
+            <h3 data-i18n="monitor.emptyTitle">After login, this page shows the current state of one running session.</h3>
             <p class="muted" data-i18n="monitor.emptyText">
-              После входа открывается живая сводка: текущий режим, активная тема, монеты, ошибки,
-              число пауз и параметры сессии.
+              It can display the active topic, recent activity, number of pauses, answers, coins, and the main settings used by the app.
             </p>
 
             <div class="preview-grid">
               <div class="preview-chip">
-                <span data-i18n="monitor.previewOneLabel">ID программы</span>
-                <strong data-i18n="monitor.previewOneValue">точечный доступ</strong>
+                <span data-i18n="monitor.previewOneLabel">Program ID</span>
+                <strong data-i18n="monitor.previewOneValue">one session only</strong>
               </div>
               <div class="preview-chip">
-                <span data-i18n="monitor.previewTwoLabel">Пароль родителя</span>
-                <strong data-i18n="monitor.previewTwoValue">защищённый вход</strong>
+                <span data-i18n="monitor.previewTwoLabel">Parent password</span>
+                <strong data-i18n="monitor.previewTwoValue">private access</strong>
               </div>
               <div class="preview-chip">
-                <span data-i18n="monitor.previewThreeLabel">Автообновление</span>
-                <strong data-i18n="monitor.previewThreeValue">каждые 15 секунд</strong>
+                <span data-i18n="monitor.previewThreeLabel">Auto refresh</span>
+                <strong data-i18n="monitor.previewThreeValue">every 15 seconds</strong>
               </div>
               <div class="preview-chip">
-                <span data-i18n="monitor.previewFourLabel">Dashboard</span>
-                <strong data-i18n="monitor.previewFourValue">статистика + статус</strong>
+                <span data-i18n="monitor.previewFourLabel">Live data</span>
+                <strong data-i18n="monitor.previewFourValue">status and statistics</strong>
               </div>
             </div>
           </article>
@@ -425,14 +402,14 @@
           <div id="monitor-dashboard" class="monitor-dashboard panel hidden">
             <div class="monitor-top">
               <div>
-                <div class="card-label" data-i18n="monitor.dashboardLabel">Активная сессия</div>
+                <div class="card-label" data-i18n="monitor.dashboardLabel">Current session</div>
                 <h3 id="session-title">Minecraft Coach</h3>
                 <p id="session-updated" class="muted"></p>
               </div>
 
               <div class="monitor-actions">
-                <button id="refresh-session-btn" class="button button-outline" type="button" data-i18n="monitor.refresh">Обновить сейчас</button>
-                <button id="logout-session-btn" class="button button-secondary" type="button" data-i18n="monitor.logout">Выйти</button>
+                <button id="refresh-session-btn" class="button button-outline" type="button" data-i18n="monitor.refresh">Refresh now</button>
+                <button id="logout-session-btn" class="button button-secondary" type="button" data-i18n="monitor.logout">Sign out</button>
               </div>
             </div>
 
@@ -440,12 +417,12 @@
 
             <div class="monitor-panels">
               <article class="monitor-card panel">
-                <h4 data-i18n="monitor.runtimeTitle">Состояние сессии</h4>
+                <h4 data-i18n="monitor.runtimeTitle">Session status</h4>
                 <div id="runtime-state" class="runtime-state"></div>
               </article>
 
               <article class="monitor-card panel">
-                <h4 data-i18n="monitor.settingsTitle">Настройки программы</h4>
+                <h4 data-i18n="monitor.settingsTitle">App settings</h4>
                 <div id="settings-state" class="settings-state"></div>
               </article>
             </div>
@@ -453,66 +430,20 @@
         </div>
       </div>
     </section>
-
-    <section id="updates" class="container section reveal">
-      <div class="section-heading">
-        <span class="eyebrow" data-i18n="updates.eyebrow">Обновление</span>
-        <h2 data-i18n="updates.title">Чтобы выложить новую версию, не нужно заново проектировать сайт.</h2>
-      </div>
-
-      <div class="update-grid">
-        <article class="update-card panel">
-          <h3 data-i18n="updates.cardOneTitle">Обновление приложения</h3>
-          <p data-i18n-html="updates.cardOneText">Достаточно заменить <code>dist/MinecraftCoach.exe</code>. Каталог загрузок начнёт отдавать новую сборку автоматически.</p>
-        </article>
-
-        <article class="update-card panel">
-          <h3 data-i18n="updates.cardTwoTitle">Обновление модулей</h3>
-          <p data-i18n-html="updates.cardTwoText">Добавьте или обновите папки в <code>modules/</code>, и сайт сам покажет их в каталоге для скачивания.</p>
-        </article>
-
-        <article class="update-card panel">
-          <h3 data-i18n="updates.cardThreeTitle">Новые секции сайта</h3>
-          <p data-i18n="updates.cardThreeText">Страница собрана как набор выразительных блоков, которые легко расширять под roadmap, кейсы и новые функции.</p>
-        </article>
-      </div>
-    </section>
-
-    <section class="container section reveal">
-      <div class="section-heading">
-        <span class="eyebrow" data-i18n="secret.eyebrow">Секретный блок</span>
-        <h2 data-i18n="secret.title">Визуально заложили место под будущие закрытые функции и новые режимы обучения.</h2>
-        <p class="section-lead" data-i18n="secret.lead">
-          Этот блок продолжает атмосферу продукта и работает как тизер следующего этапа развития.
-        </p>
-      </div>
-
-      <article class="secret-card">
-        <img
-          src="./assets/secret-reference.png"
-          alt="Тизер секретного блока Minecraft Coach"
-          loading="lazy"
-          data-i18n-alt="secret.imageAlt"
-        />
-        <div class="secret-overlay">
-          <span class="secret-badge" data-i18n="secret.badge">Roadmap teaser</span>
-          <p data-i18n="secret.text">Подготовили зону для закрытых режимов, специальных сценариев и следующей волны фич.</p>
-        </div>
-      </article>
-    </section>
   </main>
 
   <footer class="site-footer">
     <div class="container footer-inner">
       <div>
         <strong>Minecraft Coach</strong>
-        <p data-i18n="footer.text">Лендинг загрузки, модулей и мониторинга учебных сессий, собранный в технологичном стиле ваших референсов.</p>
+        <p data-i18n="footer.text">Minecraft Coach is a Windows app that adds short learning breaks to Minecraft sessions and provides a simple parent view.</p>
       </div>
 
       <div class="footer-links">
-        <a href="#download" data-i18n="nav.download">Скачать</a>
-        <a href="#modules" data-i18n="nav.modules">Модули</a>
-        <a href="#monitoring" data-i18n="nav.monitoring">Мониторинг</a>
+        <a href="#download" data-i18n="nav.download">Download</a>
+        <a href="#how-it-works" data-i18n="nav.howItWorks">How it works</a>
+        <a href="#modules" data-i18n="nav.modules">Learning packs</a>
+        <a href="#monitoring" data-i18n="nav.monitoring">Parent view</a>
       </div>
     </div>
   </footer>

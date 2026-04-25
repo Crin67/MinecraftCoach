@@ -7,6 +7,16 @@ const dashboardUrl = buildApiUrl("/dashboard");
 const sessionStorageKey = "minecraft-coach-session-token";
 const languageStorageKey = "minecraft-coach-language";
 const supportedLanguages = ["ru", "pl", "en", "it", "de", "uk"];
+const defaultLanguage = "en";
+
+const languageNames = {
+  ru: "Русский",
+  pl: "Polski",
+  en: "English",
+  it: "Italiano",
+  de: "Deutsch",
+  uk: "Українська",
+};
 
 const languageLocales = {
   ru: "ru-RU",
@@ -1514,6 +1524,956 @@ const translations = {
   },
 };
 
+const translationOverrides = {
+  en: {
+    meta: {
+      title: "Minecraft Coach - learning breaks during Minecraft",
+      description:
+        "Minecraft Coach is a Windows app that pauses Minecraft at chosen intervals, shows a short quiz or mini-lesson, and lets parents review the session with a program ID and password.",
+    },
+    brand: {
+      tagline: "Short learning breaks during play.",
+    },
+    language: {
+      label: "Language",
+      selectAria: "Choose site language",
+    },
+    languagePrompt: {
+      eyebrow: "Choose a language",
+      title: "Which language would you like to use?",
+      text: "You can change it later from the menu in the top-right corner. English is the default option.",
+      continue: "Continue in English",
+    },
+    nav: {
+      ariaLabel: "Main navigation",
+      download: "Download",
+      modules: "Learning packs",
+      howItWorks: "How it works",
+      monitoring: "Parent view",
+      login: "Open parent view",
+    },
+    hero: {
+      eyebrow: "Made for short study breaks",
+      title: "Minecraft Coach pauses Minecraft, shows a short learning task, and then lets the child continue playing.",
+      lead:
+        "It is a Windows app for families who want to add short quizzes or mini-lessons to game time. The goal is simple: pause for a moment, complete one small task, and return to the game.",
+      primaryCta: "Download for Windows",
+      secondaryCta: "See how it works",
+      signalPauseLabel: "Game pause",
+      signalPauseTitle: "Minecraft stops at the chosen time",
+      signalModulesLabel: "Short task",
+      signalModulesTitle: "A question or mini-lesson appears",
+      signalMonitoringLabel: "Parent view",
+      signalMonitoringTitle: "Session data can be reviewed later",
+      sceneAlt: "Minecraft Coach interface showing a paused game and a short question",
+      overlay: {
+        pauseTitle: "Auto pause",
+        pauseLead: "fits into the game routine",
+        pausedState: "Paused",
+        question: "What is 2 + 2?",
+        ctaTitle: "Time for a short task",
+        ctaBody: "Answer to continue.",
+      },
+    },
+    quick: {
+      eyebrow: "Overview",
+      title: "What the app does",
+      cardOneTitle: "Pauses the game",
+      cardOneText: "The app stops Minecraft at the interval set by the adult.",
+      cardTwoTitle: "Shows one short task",
+      cardTwoText: "The child sees a short question or mini-lesson instead of a long interruption.",
+      cardThreeTitle: "Saves session information",
+      cardThreeText: "The app records progress so the session can be reviewed later.",
+    },
+    download: {
+      eyebrow: "Download",
+      title: "Start with the current Windows version",
+      lead: "Download the desktop app first. If learning packs are available, you can add them separately afterward.",
+      cardLabel: "Windows app",
+      metaLoading: "Checking the current build...",
+      button: "Download .exe",
+      statusWaiting: "If the button is inactive, the current build has not been uploaded yet.",
+      sideOneTitle: "Windows desktop app",
+      sideOneText: "The site shows the current build, file size, and update time.",
+      sideTwoTitle: "Learning packs are optional",
+      sideTwoText: "You can start with the app alone and add packs later if you need ready-made topics.",
+      sideThreeTitle: "Parent view uses a program ID",
+      sideThreeText: "The session page is opened with the program ID and the parent password set in the app.",
+    },
+    modules: {
+      eyebrow: "Learning packs",
+      title: "Add a pack if you want ready-made topics and tasks",
+      lead: "Learning packs are downloaded separately. After downloading, place them in the <code>modules</code> folder used by the app.",
+    },
+    how: {
+      eyebrow: "How it works",
+      title: "What a family usually does",
+      stepOneTitle: "Install the app",
+      stepOneText: "Download the Windows version and start the program on the computer used for Minecraft.",
+      stepTwoTitle: "Choose settings",
+      stepTwoText: "An adult chooses the break interval, the number of tasks, and a parent password.",
+      stepThreeTitle: "Add learning packs if needed",
+      stepThreeText: "You can use ready-made packs or keep the setup simple and start with the app only.",
+      stepFourTitle: "Use the parent view",
+      stepFourText: "Open the session page with the program ID and password to check what is happening during the session.",
+      whyLabel: "Useful to know",
+      statusOneLabel: "The app is for Windows",
+      statusOneValue: "designed for desktop use",
+      statusTwoLabel: "Tasks are meant to be short",
+      statusTwoValue: "one small step before returning",
+      statusThreeLabel: "Learning packs are optional",
+      statusThreeValue: "the app can work without them",
+      statusFourLabel: "Parent view needs ID and password",
+      statusFourValue: "set inside the app",
+    },
+    monitor: {
+      eyebrow: "Parent view",
+      title: "Parents can open a session page with the program ID and password",
+      lead:
+        "Enter the <strong>program ID</strong> shown by the app and the <strong>parent password</strong> created during setup. The page will then refresh the session data automatically.",
+      form: {
+        programIdLabel: "Program ID",
+        programIdPlaceholder: "For example AB12CD34",
+        passwordLabel: "Parent password",
+        passwordPlaceholder: "Enter password",
+        submit: "Open session page",
+      },
+      emptyLabel: "Session page",
+      emptyTitle: "After login, this page shows the current state of one running session.",
+      emptyText:
+        "It can display the active topic, recent activity, number of pauses, answers, coins, and the main settings used by the app.",
+      previewOneLabel: "Program ID",
+      previewOneValue: "one session only",
+      previewTwoLabel: "Parent password",
+      previewTwoValue: "private access",
+      previewThreeLabel: "Auto refresh",
+      previewThreeValue: "every 15 seconds",
+      previewFourLabel: "Live data",
+      previewFourValue: "status and statistics",
+      dashboardLabel: "Current session",
+      refresh: "Refresh now",
+      logout: "Sign out",
+      runtimeTitle: "Session status",
+      settingsTitle: "App settings",
+    },
+    footer: {
+      text: "Minecraft Coach is a Windows app that adds short learning breaks to Minecraft sessions and provides a simple parent view.",
+    },
+    dynamic: {
+      moduleCardLabel: "Learning pack",
+      moduleFallbackDescription: "A ready-made description has not been added yet, but the pack can already be downloaded and used in the app.",
+      moduleTopics: "Topics: {count}",
+      moduleLevels: "Levels: {count}",
+      moduleDownload: "Download pack",
+      modulesEmptyTitle: "No learning packs are available yet",
+      modulesEmptyText: "When packs are added to the <code>modules/</code> catalog, they will appear here automatically.",
+      downloadReady: "The current Windows build is ready to download.",
+      downloadMissingMeta: "The Windows build is not available right now.",
+      downloadMissingStatus: "Please try again later or upload a new build to make the download button active.",
+      catalogErrorMeta: "Could not load the download catalog.",
+      catalogErrorStatus: "Catalog error: {error}",
+      catalogErrorTitle: "Learning packs are not available right now",
+      catalogErrorText: "Please check that the backend is running and the <code>/downloads/catalog</code> route is available.",
+      loginLoading: "Login succeeded. Loading session data...",
+      monitorOpenError: "Could not open the session page: {error}",
+      loginError: "Login error: {error}",
+    },
+  },
+  ru: {
+    meta: {
+      title: "Minecraft Coach - короткие учебные паузы в Minecraft",
+      description:
+        "Minecraft Coach — это Windows-приложение, которое ставит Minecraft на паузу через выбранные интервалы, показывает короткий вопрос или мини-урок и позволяет родителю просматривать сессию по ID программы и паролю.",
+    },
+    brand: {
+      tagline: "Короткие учебные паузы во время игры.",
+    },
+    language: {
+      label: "Язык",
+      selectAria: "Выбрать язык сайта",
+    },
+    languagePrompt: {
+      eyebrow: "Выбор языка",
+      title: "На каком языке вам удобнее читать сайт?",
+      text: "Позже язык можно изменить в меню справа вверху. По умолчанию выбран английский.",
+      continue: "Продолжить на английском",
+    },
+    nav: {
+      ariaLabel: "Главная навигация",
+      download: "Скачать",
+      modules: "Учебные пакеты",
+      howItWorks: "Как это работает",
+      monitoring: "Родительский просмотр",
+      login: "Открыть родительский просмотр",
+    },
+    hero: {
+      eyebrow: "Для коротких учебных пауз",
+      title: "Minecraft Coach ставит Minecraft на короткую паузу, показывает небольшое учебное задание и потом возвращает ребёнка в игру.",
+      lead:
+        "Это Windows-приложение для семей, которые хотят добавить в игровое время короткие вопросы или мини-уроки. Идея простая: небольшая пауза, одно короткое задание и возврат к игре.",
+      primaryCta: "Скачать для Windows",
+      secondaryCta: "Посмотреть, как это работает",
+      signalPauseLabel: "Пауза в игре",
+      signalPauseTitle: "Minecraft останавливается в выбранный момент",
+      signalModulesLabel: "Короткое задание",
+      signalModulesTitle: "Появляется вопрос или мини-урок",
+      signalMonitoringLabel: "Родительский просмотр",
+      signalMonitoringTitle: "Данные сессии можно посмотреть позже",
+      sceneAlt: "Интерфейс Minecraft Coach с паузой игры и коротким вопросом",
+      overlay: {
+        pauseTitle: "Авто-пауза",
+        pauseLead: "встраивается в игровой ритм",
+        pausedState: "Пауза",
+        question: "Сколько будет 2 + 2?",
+        ctaTitle: "Время для короткого задания",
+        ctaBody: "Ответьте, чтобы продолжить.",
+      },
+    },
+    quick: {
+      eyebrow: "Обзор",
+      title: "Что делает приложение",
+      cardOneTitle: "Ставит игру на паузу",
+      cardOneText: "Приложение останавливает Minecraft через интервал, который задаёт взрослый.",
+      cardTwoTitle: "Показывает одно короткое задание",
+      cardTwoText: "Ребёнок видит короткий вопрос или мини-урок вместо долгого отвлечения.",
+      cardThreeTitle: "Сохраняет данные сессии",
+      cardThreeText: "Приложение записывает прогресс, чтобы к нему можно было вернуться позже.",
+    },
+    download: {
+      eyebrow: "Скачать",
+      title: "Начните с актуальной версии для Windows",
+      lead: "Сначала скачайте desktop-приложение. Если доступны учебные пакеты, их можно добавить отдельно позже.",
+      cardLabel: "Windows-приложение",
+      metaLoading: "Проверяем текущую сборку...",
+      button: "Скачать .exe",
+      statusWaiting: "Если кнопка неактивна, актуальная сборка ещё не загружена.",
+      sideOneTitle: "Desktop-приложение для Windows",
+      sideOneText: "Сайт показывает текущую сборку, размер файла и время обновления.",
+      sideTwoTitle: "Учебные пакеты необязательны",
+      sideTwoText: "Можно начать только с приложения и добавить пакеты позже, если нужны готовые темы.",
+      sideThreeTitle: "Родительский просмотр работает по ID программы",
+      sideThreeText: "Страница сессии открывается по ID программы и родительскому паролю, который задаётся в приложении.",
+    },
+    modules: {
+      eyebrow: "Учебные пакеты",
+      title: "Добавьте пакет, если нужны готовые темы и задания",
+      lead: "Учебные пакеты скачиваются отдельно. После загрузки поместите их в папку <code>modules</code>, которую использует приложение.",
+    },
+    how: {
+      eyebrow: "Как это работает",
+      title: "Как обычно выглядит работа с приложением",
+      stepOneTitle: "Установите приложение",
+      stepOneText: "Скачайте версию для Windows и запустите программу на компьютере, где используется Minecraft.",
+      stepTwoTitle: "Выберите настройки",
+      stepTwoText: "Взрослый задаёт интервал пауз, количество заданий и родительский пароль.",
+      stepThreeTitle: "Добавьте учебные пакеты при необходимости",
+      stepThreeText: "Можно использовать готовые пакеты или оставить настройку простой и начать только с приложения.",
+      stepFourTitle: "Откройте родительский просмотр",
+      stepFourText: "По ID программы и паролю можно открыть страницу сессии и посмотреть, что происходит во время игры.",
+      whyLabel: "Важно знать",
+      statusOneLabel: "Приложение рассчитано на Windows",
+      statusOneValue: "для работы на настольном компьютере",
+      statusTwoLabel: "Задания задуманы короткими",
+      statusTwoValue: "одно небольшое действие перед возвращением",
+      statusThreeLabel: "Учебные пакеты необязательны",
+      statusThreeValue: "приложение может работать и без них",
+      statusFourLabel: "Для родительского просмотра нужны ID и пароль",
+      statusFourValue: "они задаются внутри приложения",
+    },
+    monitor: {
+      eyebrow: "Родительский просмотр",
+      title: "Родитель может открыть страницу сессии по ID программы и паролю",
+      lead:
+        "Введите <strong>ID программы</strong>, который показывает приложение, и <strong>родительский пароль</strong>, созданный при настройке. После этого страница начнёт автоматически обновлять данные сессии.",
+      form: {
+        programIdLabel: "ID программы",
+        programIdPlaceholder: "Например AB12CD34",
+        passwordLabel: "Родительский пароль",
+        passwordPlaceholder: "Введите пароль",
+        submit: "Открыть страницу сессии",
+      },
+      emptyLabel: "Страница сессии",
+      emptyTitle: "После входа здесь отображается текущее состояние одной активной сессии.",
+      emptyText:
+        "Здесь могут показываться активная тема, последние действия, количество пауз, ответы, монеты и основные настройки приложения.",
+      previewOneLabel: "ID программы",
+      previewOneValue: "только одна сессия",
+      previewTwoLabel: "Родительский пароль",
+      previewTwoValue: "закрытый доступ",
+      previewThreeLabel: "Автообновление",
+      previewThreeValue: "каждые 15 секунд",
+      previewFourLabel: "Живые данные",
+      previewFourValue: "статус и статистика",
+      dashboardLabel: "Текущая сессия",
+      refresh: "Обновить сейчас",
+      logout: "Выйти",
+      runtimeTitle: "Состояние сессии",
+      settingsTitle: "Настройки приложения",
+    },
+    footer: {
+      text: "Minecraft Coach — это Windows-приложение, которое добавляет короткие учебные паузы в сессии Minecraft и даёт простой родительский просмотр.",
+    },
+    dynamic: {
+      moduleCardLabel: "Учебный пакет",
+      moduleFallbackDescription: "Подробное описание пока не добавлено, но пакет уже можно скачать и использовать в приложении.",
+      moduleTopics: "Тем: {count}",
+      moduleLevels: "Уровней: {count}",
+      moduleDownload: "Скачать пакет",
+      modulesEmptyTitle: "Учебные пакеты пока недоступны",
+      modulesEmptyText: "Когда пакеты появятся в каталоге <code>modules/</code>, они автоматически отобразятся здесь.",
+      downloadReady: "Актуальная сборка для Windows готова к скачиванию.",
+      downloadMissingMeta: "Сборка для Windows сейчас недоступна.",
+      downloadMissingStatus: "Попробуйте позже или загрузите новую сборку, чтобы кнопка скачивания снова стала активной.",
+      catalogErrorMeta: "Не удалось получить каталог загрузок.",
+      catalogErrorStatus: "Ошибка каталога: {error}",
+      catalogErrorTitle: "Учебные пакеты сейчас недоступны",
+      catalogErrorText: "Проверьте, что backend запущен и маршрут <code>/downloads/catalog</code> доступен.",
+      loginLoading: "Вход выполнен. Загружаем данные сессии...",
+      monitorOpenError: "Не удалось открыть страницу сессии: {error}",
+      loginError: "Ошибка входа: {error}",
+    },
+  },
+  pl: {
+    meta: {
+      title: "Minecraft Coach - krótkie przerwy edukacyjne w Minecraft",
+      description:
+        "Minecraft Coach to aplikacja dla Windows, która zatrzymuje Minecrafta w wybranych odstępach, pokazuje krótkie pytanie lub mini-lekcję i pozwala rodzicowi przeglądać sesję po ID programu i haśle.",
+    },
+    brand: {
+      tagline: "Krótkie przerwy edukacyjne podczas gry.",
+    },
+    language: {
+      label: "Język",
+      selectAria: "Wybierz język strony",
+    },
+    languagePrompt: {
+      eyebrow: "Wybór języka",
+      title: "W jakim języku chcesz przeglądać stronę?",
+      text: "Później możesz zmienić język z menu w prawym górnym rogu. Domyślnie wybrany jest angielski.",
+      continue: "Kontynuuj po angielsku",
+    },
+    nav: {
+      ariaLabel: "Główna nawigacja",
+      download: "Pobierz",
+      modules: "Pakiety nauki",
+      howItWorks: "Jak to działa",
+      monitoring: "Widok rodzica",
+      login: "Otwórz widok rodzica",
+    },
+    hero: {
+      eyebrow: "Do krótkich przerw edukacyjnych",
+      title: "Minecraft Coach zatrzymuje Minecraft na chwilę, pokazuje krótkie zadanie i pozwala dziecku wrócić do gry.",
+      lead:
+        "To aplikacja Windows dla rodzin, które chcą dodać do czasu gry krótkie pytania lub mini-lekcje. Pomysł jest prosty: krótka pauza, jedno małe zadanie i powrót do gry.",
+      primaryCta: "Pobierz dla Windows",
+      secondaryCta: "Zobacz, jak to działa",
+      signalPauseLabel: "Pauza w grze",
+      signalPauseTitle: "Minecraft zatrzymuje się w wybranym momencie",
+      signalModulesLabel: "Krótkie zadanie",
+      signalModulesTitle: "Pojawia się pytanie lub mini-lekcja",
+      signalMonitoringLabel: "Widok rodzica",
+      signalMonitoringTitle: "Dane sesji można sprawdzić później",
+      sceneAlt: "Interfejs Minecraft Coach z pauzą gry i krótkim pytaniem",
+      overlay: {
+        pauseTitle: "Auto-pauza",
+        pauseLead: "pasuje do rytmu gry",
+        pausedState: "Pauza",
+        question: "Ile to 2 + 2?",
+        ctaTitle: "Czas na krótkie zadanie",
+        ctaBody: "Odpowiedz, aby kontynuować.",
+      },
+    },
+    quick: {
+      eyebrow: "Przegląd",
+      title: "Co robi aplikacja",
+      cardOneTitle: "Zatrzymuje grę",
+      cardOneText: "Aplikacja zatrzymuje Minecrafta zgodnie z interwałem ustawionym przez dorosłego.",
+      cardTwoTitle: "Pokazuje jedno krótkie zadanie",
+      cardTwoText: "Dziecko widzi krótkie pytanie lub mini-lekcję zamiast długiego oderwania od gry.",
+      cardThreeTitle: "Zapisuje dane sesji",
+      cardThreeText: "Aplikacja zapisuje postęp, aby można go było później sprawdzić.",
+    },
+    download: {
+      eyebrow: "Pobierz",
+      title: "Zacznij od aktualnej wersji dla Windows",
+      lead: "Najpierw pobierz aplikację desktopową. Jeśli dostępne są pakiety nauki, możesz dodać je osobno później.",
+      cardLabel: "Aplikacja Windows",
+      metaLoading: "Sprawdzamy bieżącą wersję...",
+      button: "Pobierz .exe",
+      statusWaiting: "Jeśli przycisk jest nieaktywny, aktualna wersja nie została jeszcze przesłana.",
+      sideOneTitle: "Aplikacja desktopowa dla Windows",
+      sideOneText: "Strona pokazuje bieżący build, rozmiar pliku i czas aktualizacji.",
+      sideTwoTitle: "Pakiety nauki są opcjonalne",
+      sideTwoText: "Możesz zacząć od samej aplikacji i dodać pakiety później, jeśli potrzebujesz gotowych tematów.",
+      sideThreeTitle: "Widok rodzica działa przez ID programu",
+      sideThreeText: "Strona sesji otwiera się przy użyciu ID programu i hasła rodzica ustawionego w aplikacji.",
+    },
+    modules: {
+      eyebrow: "Pakiety nauki",
+      title: "Dodaj pakiet, jeśli chcesz gotowe tematy i zadania",
+      lead: "Pakiety nauki pobiera się osobno. Po pobraniu umieść je w folderze <code>modules</code> używanym przez aplikację.",
+    },
+    how: {
+      eyebrow: "Jak to działa",
+      title: "Jak zwykle korzysta z tego rodzina",
+      stepOneTitle: "Zainstaluj aplikację",
+      stepOneText: "Pobierz wersję dla Windows i uruchom program na komputerze używanym do Minecrafta.",
+      stepTwoTitle: "Wybierz ustawienia",
+      stepTwoText: "Dorosły ustawia interwał przerw, liczbę zadań i hasło rodzica.",
+      stepThreeTitle: "Dodaj pakiety nauki, jeśli trzeba",
+      stepThreeText: "Możesz używać gotowych pakietów albo zacząć od prostego ustawienia tylko z aplikacją.",
+      stepFourTitle: "Otwórz widok rodzica",
+      stepFourText: "Za pomocą ID programu i hasła możesz otworzyć stronę sesji i sprawdzić, co dzieje się podczas gry.",
+      whyLabel: "Warto wiedzieć",
+      statusOneLabel: "Aplikacja jest przeznaczona dla Windows",
+      statusOneValue: "do pracy na komputerze desktopowym",
+      statusTwoLabel: "Zadania mają być krótkie",
+      statusTwoValue: "jeden mały krok przed powrotem",
+      statusThreeLabel: "Pakiety nauki są opcjonalne",
+      statusThreeValue: "aplikacja może działać bez nich",
+      statusFourLabel: "Widok rodzica wymaga ID i hasła",
+      statusFourValue: "ustawianych w aplikacji",
+    },
+    monitor: {
+      eyebrow: "Widok rodzica",
+      title: "Rodzic może otworzyć stronę sesji przy użyciu ID programu i hasła",
+      lead:
+        "Wpisz <strong>ID programu</strong> widoczne w aplikacji oraz <strong>hasło rodzica</strong> utworzone podczas konfiguracji. Strona zacznie wtedy automatycznie odświeżać dane sesji.",
+      form: {
+        programIdLabel: "ID programu",
+        programIdPlaceholder: "Na przykład AB12CD34",
+        passwordLabel: "Hasło rodzica",
+        passwordPlaceholder: "Wpisz hasło",
+        submit: "Otwórz stronę sesji",
+      },
+      emptyLabel: "Strona sesji",
+      emptyTitle: "Po zalogowaniu ta strona pokazuje bieżący stan jednej aktywnej sesji.",
+      emptyText:
+        "Może pokazywać aktywny temat, ostatnie działania, liczbę przerw, odpowiedzi, monety i główne ustawienia używane przez aplikację.",
+      previewOneLabel: "ID programu",
+      previewOneValue: "tylko jedna sesja",
+      previewTwoLabel: "Hasło rodzica",
+      previewTwoValue: "prywatny dostęp",
+      previewThreeLabel: "Auto-odświeżanie",
+      previewThreeValue: "co 15 sekund",
+      previewFourLabel: "Dane na żywo",
+      previewFourValue: "status i statystyki",
+      dashboardLabel: "Bieżąca sesja",
+      refresh: "Odśwież teraz",
+      logout: "Wyloguj",
+      runtimeTitle: "Stan sesji",
+      settingsTitle: "Ustawienia aplikacji",
+    },
+    footer: {
+      text: "Minecraft Coach to aplikacja dla Windows, która dodaje krótkie przerwy edukacyjne do sesji Minecraft i zapewnia prosty widok rodzica.",
+    },
+    dynamic: {
+      moduleCardLabel: "Pakiet nauki",
+      moduleFallbackDescription: "Szczegółowy opis nie został jeszcze dodany, ale pakiet można już pobrać i używać w aplikacji.",
+      moduleTopics: "Tematy: {count}",
+      moduleLevels: "Poziomy: {count}",
+      moduleDownload: "Pobierz pakiet",
+      modulesEmptyTitle: "Pakiety nauki nie są jeszcze dostępne",
+      modulesEmptyText: "Gdy pakiety pojawią się w katalogu <code>modules/</code>, zostaną pokazane tutaj automatycznie.",
+      downloadReady: "Aktualny build dla Windows jest gotowy do pobrania.",
+      downloadMissingMeta: "Build dla Windows nie jest teraz dostępny.",
+      downloadMissingStatus: "Spróbuj ponownie później albo prześlij nowy build, aby przycisk pobierania znów był aktywny.",
+      catalogErrorMeta: "Nie udało się wczytać katalogu pobierania.",
+      catalogErrorStatus: "Błąd katalogu: {error}",
+      catalogErrorTitle: "Pakiety nauki są teraz niedostępne",
+      catalogErrorText: "Sprawdź, czy backend działa i czy trasa <code>/downloads/catalog</code> jest dostępna.",
+      loginLoading: "Logowanie zakończone. Ładujemy dane sesji...",
+      monitorOpenError: "Nie udało się otworzyć strony sesji: {error}",
+      loginError: "Błąd logowania: {error}",
+    },
+  },
+  it: {
+    meta: {
+      title: "Minecraft Coach - brevi pause educative in Minecraft",
+      description:
+        "Minecraft Coach è un'app per Windows che mette in pausa Minecraft a intervalli scelti, mostra una breve domanda o mini-lezione e permette ai genitori di controllare la sessione con ID programma e password.",
+    },
+    brand: {
+      tagline: "Brevi pause educative durante il gioco.",
+    },
+    language: {
+      label: "Lingua",
+      selectAria: "Scegli la lingua del sito",
+    },
+    languagePrompt: {
+      eyebrow: "Scelta della lingua",
+      title: "In quale lingua vuoi leggere il sito?",
+      text: "Puoi cambiarla più tardi dal menu in alto a destra. L'inglese è l'opzione predefinita.",
+      continue: "Continua in inglese",
+    },
+    nav: {
+      ariaLabel: "Navigazione principale",
+      download: "Scarica",
+      modules: "Pacchetti didattici",
+      howItWorks: "Come funziona",
+      monitoring: "Vista genitore",
+      login: "Apri la vista genitore",
+    },
+    hero: {
+      eyebrow: "Per brevi pause di studio",
+      title: "Minecraft Coach mette Minecraft in pausa per un momento, mostra un breve compito e poi lascia continuare il gioco.",
+      lead:
+        "È un'app per Windows pensata per le famiglie che vogliono inserire brevi domande o mini-lezioni nel tempo di gioco. L'idea è semplice: una piccola pausa, un solo compito breve e ritorno al gioco.",
+      primaryCta: "Scarica per Windows",
+      secondaryCta: "Vedi come funziona",
+      signalPauseLabel: "Pausa di gioco",
+      signalPauseTitle: "Minecraft si ferma nel momento scelto",
+      signalModulesLabel: "Compito breve",
+      signalModulesTitle: "Compare una domanda o una mini-lezione",
+      signalMonitoringLabel: "Vista genitore",
+      signalMonitoringTitle: "I dati della sessione si possono controllare dopo",
+      sceneAlt: "Interfaccia di Minecraft Coach con gioco in pausa e una breve domanda",
+      overlay: {
+        pauseTitle: "Pausa automatica",
+        pauseLead: "si inserisce nel ritmo del gioco",
+        pausedState: "In pausa",
+        question: "Quanto fa 2 + 2?",
+        ctaTitle: "È il momento di un compito breve",
+        ctaBody: "Rispondi per continuare.",
+      },
+    },
+    quick: {
+      eyebrow: "Panoramica",
+      title: "Cosa fa l'app",
+      cardOneTitle: "Mette in pausa il gioco",
+      cardOneText: "L'app ferma Minecraft in base all'intervallo impostato dall'adulto.",
+      cardTwoTitle: "Mostra un solo compito breve",
+      cardTwoText: "Il bambino vede una domanda breve o una mini-lezione invece di una lunga interruzione.",
+      cardThreeTitle: "Salva i dati della sessione",
+      cardThreeText: "L'app registra i progressi così da poterli controllare più tardi.",
+    },
+    download: {
+      eyebrow: "Scarica",
+      title: "Inizia con la versione attuale per Windows",
+      lead: "Scarica prima l'app desktop. Se ci sono pacchetti didattici disponibili, puoi aggiungerli separatamente in seguito.",
+      cardLabel: "App Windows",
+      metaLoading: "Controllo della build in corso...",
+      button: "Scarica .exe",
+      statusWaiting: "Se il pulsante è inattivo, la build attuale non è stata ancora caricata.",
+      sideOneTitle: "App desktop per Windows",
+      sideOneText: "Il sito mostra la build corrente, la dimensione del file e l'orario di aggiornamento.",
+      sideTwoTitle: "I pacchetti didattici sono opzionali",
+      sideTwoText: "Puoi iniziare solo con l'app e aggiungere i pacchetti più tardi se ti servono argomenti già pronti.",
+      sideThreeTitle: "La vista genitore usa l'ID del programma",
+      sideThreeText: "La pagina della sessione si apre con l'ID del programma e la password genitore impostata nell'app.",
+    },
+    modules: {
+      eyebrow: "Pacchetti didattici",
+      title: "Aggiungi un pacchetto se vuoi argomenti e compiti già pronti",
+      lead: "I pacchetti didattici vengono scaricati separatamente. Dopo il download, copiali nella cartella <code>modules</code> usata dall'app.",
+    },
+    how: {
+      eyebrow: "Come funziona",
+      title: "Come di solito lo usa una famiglia",
+      stepOneTitle: "Installa l'app",
+      stepOneText: "Scarica la versione per Windows e avvia il programma sul computer usato per Minecraft.",
+      stepTwoTitle: "Scegli le impostazioni",
+      stepTwoText: "Un adulto imposta l'intervallo delle pause, il numero di compiti e una password genitore.",
+      stepThreeTitle: "Aggiungi pacchetti didattici se servono",
+      stepThreeText: "Puoi usare pacchetti pronti oppure iniziare con una configurazione semplice usando solo l'app.",
+      stepFourTitle: "Apri la vista genitore",
+      stepFourText: "Con l'ID del programma e la password puoi aprire la pagina della sessione e vedere cosa succede durante il gioco.",
+      whyLabel: "Da sapere",
+      statusOneLabel: "L'app è pensata per Windows",
+      statusOneValue: "uso su computer desktop",
+      statusTwoLabel: "I compiti devono essere brevi",
+      statusTwoValue: "un piccolo passo prima di tornare",
+      statusThreeLabel: "I pacchetti didattici sono opzionali",
+      statusThreeValue: "l'app può funzionare anche senza",
+      statusFourLabel: "La vista genitore richiede ID e password",
+      statusFourValue: "impostati dentro l'app",
+    },
+    monitor: {
+      eyebrow: "Vista genitore",
+      title: "I genitori possono aprire una pagina della sessione con ID programma e password",
+      lead:
+        "Inserisci l'<strong>ID del programma</strong> mostrato dall'app e la <strong>password genitore</strong> creata durante la configurazione. La pagina inizierà poi ad aggiornare automaticamente i dati della sessione.",
+      form: {
+        programIdLabel: "ID programma",
+        programIdPlaceholder: "Per esempio AB12CD34",
+        passwordLabel: "Password genitore",
+        passwordPlaceholder: "Inserisci la password",
+        submit: "Apri la pagina della sessione",
+      },
+      emptyLabel: "Pagina della sessione",
+      emptyTitle: "Dopo l'accesso, questa pagina mostra lo stato corrente di una sessione attiva.",
+      emptyText:
+        "Può mostrare l'argomento attivo, le attività recenti, il numero di pause, le risposte, le monete e le principali impostazioni usate dall'app.",
+      previewOneLabel: "ID programma",
+      previewOneValue: "una sola sessione",
+      previewTwoLabel: "Password genitore",
+      previewTwoValue: "accesso privato",
+      previewThreeLabel: "Aggiornamento automatico",
+      previewThreeValue: "ogni 15 secondi",
+      previewFourLabel: "Dati in tempo reale",
+      previewFourValue: "stato e statistiche",
+      dashboardLabel: "Sessione attuale",
+      refresh: "Aggiorna ora",
+      logout: "Esci",
+      runtimeTitle: "Stato della sessione",
+      settingsTitle: "Impostazioni dell'app",
+    },
+    footer: {
+      text: "Minecraft Coach è un'app per Windows che aggiunge brevi pause educative alle sessioni di Minecraft e offre una semplice vista genitore.",
+    },
+    dynamic: {
+      moduleCardLabel: "Pacchetto didattico",
+      moduleFallbackDescription: "La descrizione dettagliata non è ancora disponibile, ma il pacchetto può già essere scaricato e usato nell'app.",
+      moduleTopics: "Argomenti: {count}",
+      moduleLevels: "Livelli: {count}",
+      moduleDownload: "Scarica pacchetto",
+      modulesEmptyTitle: "Nessun pacchetto didattico disponibile per ora",
+      modulesEmptyText: "Quando i pacchetti verranno aggiunti al catalogo <code>modules/</code>, appariranno qui automaticamente.",
+      downloadReady: "La build attuale per Windows è pronta per il download.",
+      downloadMissingMeta: "La build per Windows non è disponibile in questo momento.",
+      downloadMissingStatus: "Riprova più tardi oppure carica una nuova build per riattivare il pulsante di download.",
+      catalogErrorMeta: "Impossibile caricare il catalogo dei download.",
+      catalogErrorStatus: "Errore del catalogo: {error}",
+      catalogErrorTitle: "I pacchetti didattici non sono disponibili in questo momento",
+      catalogErrorText: "Controlla che il backend sia attivo e che la rotta <code>/downloads/catalog</code> sia disponibile.",
+      loginLoading: "Accesso eseguito. Caricamento dei dati della sessione...",
+      monitorOpenError: "Impossibile aprire la pagina della sessione: {error}",
+      loginError: "Errore di accesso: {error}",
+    },
+  },
+  de: {
+    meta: {
+      title: "Minecraft Coach - kurze Lernpausen in Minecraft",
+      description:
+        "Minecraft Coach ist eine Windows-App, die Minecraft in gewählten Abständen pausiert, eine kurze Frage oder Mini-Lektion zeigt und Eltern erlaubt, die Sitzung mit Programm-ID und Passwort anzusehen.",
+    },
+    brand: {
+      tagline: "Kurze Lernpausen während des Spielens.",
+    },
+    language: {
+      label: "Sprache",
+      selectAria: "Seitensprache auswählen",
+    },
+    languagePrompt: {
+      eyebrow: "Sprachauswahl",
+      title: "In welcher Sprache möchtest du die Seite lesen?",
+      text: "Du kannst die Sprache später über das Menü oben rechts ändern. Standardmäßig ist Englisch ausgewählt.",
+      continue: "Auf Englisch fortfahren",
+    },
+    nav: {
+      ariaLabel: "Hauptnavigation",
+      download: "Download",
+      modules: "Lernpakete",
+      howItWorks: "So funktioniert es",
+      monitoring: "Elternansicht",
+      login: "Elternansicht öffnen",
+    },
+    hero: {
+      eyebrow: "Für kurze Lernpausen",
+      title: "Minecraft Coach pausiert Minecraft kurz, zeigt eine kleine Lernaufgabe und lässt das Kind danach weiterspielen.",
+      lead:
+        "Es ist eine Windows-App für Familien, die kurze Fragen oder Mini-Lektionen in die Spielzeit einbauen möchten. Die Idee ist einfach: kurz pausieren, eine kleine Aufgabe lösen und zurück ins Spiel.",
+      primaryCta: "Für Windows herunterladen",
+      secondaryCta: "So funktioniert es",
+      signalPauseLabel: "Spielpause",
+      signalPauseTitle: "Minecraft stoppt zum gewählten Zeitpunkt",
+      signalModulesLabel: "Kurze Aufgabe",
+      signalModulesTitle: "Eine Frage oder Mini-Lektion erscheint",
+      signalMonitoringLabel: "Elternansicht",
+      signalMonitoringTitle: "Sitzungsdaten lassen sich später prüfen",
+      sceneAlt: "Minecraft-Coach-Oberfläche mit pausiertem Spiel und kurzer Frage",
+      overlay: {
+        pauseTitle: "Auto-Pause",
+        pauseLead: "passt zum Spielrhythmus",
+        pausedState: "Pausiert",
+        question: "Wie viel ist 2 + 2?",
+        ctaTitle: "Zeit für eine kurze Aufgabe",
+        ctaBody: "Antworte, um fortzufahren.",
+      },
+    },
+    quick: {
+      eyebrow: "Überblick",
+      title: "Was die App macht",
+      cardOneTitle: "Pausiert das Spiel",
+      cardOneText: "Die App stoppt Minecraft in dem Abstand, den der Erwachsene festlegt.",
+      cardTwoTitle: "Zeigt eine kurze Aufgabe",
+      cardTwoText: "Das Kind sieht eine kurze Frage oder Mini-Lektion statt einer langen Unterbrechung.",
+      cardThreeTitle: "Speichert Sitzungsdaten",
+      cardThreeText: "Die App speichert den Fortschritt, damit er später geprüft werden kann.",
+    },
+    download: {
+      eyebrow: "Download",
+      title: "Starte mit der aktuellen Windows-Version",
+      lead: "Lade zuerst die Desktop-App herunter. Wenn Lernpakete verfügbar sind, kannst du sie später separat hinzufügen.",
+      cardLabel: "Windows-App",
+      metaLoading: "Aktuellen Build prüfen...",
+      button: "Download .exe",
+      statusWaiting: "Wenn die Schaltfläche inaktiv ist, wurde der aktuelle Build noch nicht hochgeladen.",
+      sideOneTitle: "Desktop-App für Windows",
+      sideOneText: "Die Website zeigt den aktuellen Build, die Dateigröße und die Aktualisierungszeit.",
+      sideTwoTitle: "Lernpakete sind optional",
+      sideTwoText: "Du kannst nur mit der App starten und später Pakete hinzufügen, wenn du fertige Themen brauchst.",
+      sideThreeTitle: "Die Elternansicht nutzt eine Programm-ID",
+      sideThreeText: "Die Sitzungsseite wird mit der Programm-ID und dem in der App gesetzten Elternpasswort geöffnet.",
+    },
+    modules: {
+      eyebrow: "Lernpakete",
+      title: "Füge ein Paket hinzu, wenn du fertige Themen und Aufgaben möchtest",
+      lead: "Lernpakete werden separat heruntergeladen. Lege sie nach dem Download in den Ordner <code>modules</code>, den die App verwendet.",
+    },
+    how: {
+      eyebrow: "So funktioniert es",
+      title: "So nutzt eine Familie die App normalerweise",
+      stepOneTitle: "App installieren",
+      stepOneText: "Lade die Windows-Version herunter und starte das Programm auf dem Computer, auf dem Minecraft läuft.",
+      stepTwoTitle: "Einstellungen wählen",
+      stepTwoText: "Ein Erwachsener legt das Pausenintervall, die Anzahl der Aufgaben und ein Elternpasswort fest.",
+      stepThreeTitle: "Bei Bedarf Lernpakete hinzufügen",
+      stepThreeText: "Du kannst fertige Pakete nutzen oder mit einer einfachen Einrichtung nur mit der App beginnen.",
+      stepFourTitle: "Elternansicht öffnen",
+      stepFourText: "Mit Programm-ID und Passwort lässt sich die Sitzungsseite öffnen, um zu sehen, was während des Spiels passiert.",
+      whyLabel: "Gut zu wissen",
+      statusOneLabel: "Die App ist für Windows gedacht",
+      statusOneValue: "für die Nutzung auf dem Desktop",
+      statusTwoLabel: "Aufgaben sollen kurz sein",
+      statusTwoValue: "ein kleiner Schritt vor der Rückkehr",
+      statusThreeLabel: "Lernpakete sind optional",
+      statusThreeValue: "die App funktioniert auch ohne sie",
+      statusFourLabel: "Die Elternansicht braucht ID und Passwort",
+      statusFourValue: "sie werden in der App festgelegt",
+    },
+    monitor: {
+      eyebrow: "Elternansicht",
+      title: "Eltern können eine Sitzungsseite mit Programm-ID und Passwort öffnen",
+      lead:
+        "Gib die <strong>Programm-ID</strong> aus der App und das <strong>Elternpasswort</strong> aus der Einrichtung ein. Danach aktualisiert die Seite die Sitzungsdaten automatisch.",
+      form: {
+        programIdLabel: "Programm-ID",
+        programIdPlaceholder: "Zum Beispiel AB12CD34",
+        passwordLabel: "Elternpasswort",
+        passwordPlaceholder: "Passwort eingeben",
+        submit: "Sitzungsseite öffnen",
+      },
+      emptyLabel: "Sitzungsseite",
+      emptyTitle: "Nach dem Login zeigt diese Seite den aktuellen Stand einer aktiven Sitzung.",
+      emptyText:
+        "Sie kann das aktive Thema, letzte Aktivitäten, die Zahl der Pausen, Antworten, Münzen und die wichtigsten App-Einstellungen anzeigen.",
+      previewOneLabel: "Programm-ID",
+      previewOneValue: "nur eine Sitzung",
+      previewTwoLabel: "Elternpasswort",
+      previewTwoValue: "privater Zugriff",
+      previewThreeLabel: "Auto-Aktualisierung",
+      previewThreeValue: "alle 15 Sekunden",
+      previewFourLabel: "Live-Daten",
+      previewFourValue: "Status und Statistik",
+      dashboardLabel: "Aktuelle Sitzung",
+      refresh: "Jetzt aktualisieren",
+      logout: "Abmelden",
+      runtimeTitle: "Sitzungsstatus",
+      settingsTitle: "App-Einstellungen",
+    },
+    footer: {
+      text: "Minecraft Coach ist eine Windows-App, die kurze Lernpausen in Minecraft-Sitzungen einfügt und eine einfache Elternansicht bietet.",
+    },
+    dynamic: {
+      moduleCardLabel: "Lernpaket",
+      moduleFallbackDescription: "Eine ausführliche Beschreibung fehlt noch, aber das Paket kann bereits heruntergeladen und in der App verwendet werden.",
+      moduleTopics: "Themen: {count}",
+      moduleLevels: "Stufen: {count}",
+      moduleDownload: "Paket herunterladen",
+      modulesEmptyTitle: "Noch keine Lernpakete verfügbar",
+      modulesEmptyText: "Sobald Pakete im Katalog <code>modules/</code> hinzugefügt werden, erscheinen sie hier automatisch.",
+      downloadReady: "Der aktuelle Windows-Build steht zum Download bereit.",
+      downloadMissingMeta: "Der Windows-Build ist im Moment nicht verfügbar.",
+      downloadMissingStatus: "Bitte versuche es später erneut oder lade einen neuen Build hoch, damit die Download-Schaltfläche wieder aktiv wird.",
+      catalogErrorMeta: "Der Download-Katalog konnte nicht geladen werden.",
+      catalogErrorStatus: "Katalogfehler: {error}",
+      catalogErrorTitle: "Lernpakete sind derzeit nicht verfügbar",
+      catalogErrorText: "Prüfe bitte, ob das Backend läuft und die Route <code>/downloads/catalog</code> verfügbar ist.",
+      loginLoading: "Anmeldung erfolgreich. Sitzungsdaten werden geladen...",
+      monitorOpenError: "Die Sitzungsseite konnte nicht geöffnet werden: {error}",
+      loginError: "Anmeldefehler: {error}",
+    },
+  },
+  uk: {
+    meta: {
+      title: "Minecraft Coach - короткі навчальні паузи в Minecraft",
+      description:
+        "Minecraft Coach — це застосунок для Windows, який ставить Minecraft на паузу через вибрані інтервали, показує коротке запитання або міні-урок і дозволяє батькам переглядати сесію за ID програми та паролем.",
+    },
+    brand: {
+      tagline: "Короткі навчальні паузи під час гри.",
+    },
+    language: {
+      label: "Мова",
+      selectAria: "Вибрати мову сайту",
+    },
+    languagePrompt: {
+      eyebrow: "Вибір мови",
+      title: "Якою мовою вам зручніше переглядати сайт?",
+      text: "Пізніше мову можна змінити в меню праворуч угорі. За замовчуванням вибрано англійську.",
+      continue: "Продовжити англійською",
+    },
+    nav: {
+      ariaLabel: "Головна навігація",
+      download: "Завантажити",
+      modules: "Навчальні пакети",
+      howItWorks: "Як це працює",
+      monitoring: "Батьківський перегляд",
+      login: "Відкрити батьківський перегляд",
+    },
+    hero: {
+      eyebrow: "Для коротких навчальних пауз",
+      title: "Minecraft Coach ненадовго ставить Minecraft на паузу, показує невелике навчальне завдання і потім повертає дитину до гри.",
+      lead:
+        "Це застосунок для Windows для сімей, які хочуть додати до ігрового часу короткі запитання або міні-уроки. Ідея проста: невелика пауза, одне коротке завдання і повернення до гри.",
+      primaryCta: "Завантажити для Windows",
+      secondaryCta: "Подивитися, як це працює",
+      signalPauseLabel: "Пауза в грі",
+      signalPauseTitle: "Minecraft зупиняється в обраний момент",
+      signalModulesLabel: "Коротке завдання",
+      signalModulesTitle: "З'являється запитання або міні-урок",
+      signalMonitoringLabel: "Батьківський перегляд",
+      signalMonitoringTitle: "Дані сесії можна переглянути пізніше",
+      sceneAlt: "Інтерфейс Minecraft Coach із паузою гри та коротким запитанням",
+      overlay: {
+        pauseTitle: "Авто-пауза",
+        pauseLead: "вбудовується в ритм гри",
+        pausedState: "Пауза",
+        question: "Скільки буде 2 + 2?",
+        ctaTitle: "Час для короткого завдання",
+        ctaBody: "Дайте відповідь, щоб продовжити.",
+      },
+    },
+    quick: {
+      eyebrow: "Огляд",
+      title: "Що робить застосунок",
+      cardOneTitle: "Ставить гру на паузу",
+      cardOneText: "Застосунок зупиняє Minecraft через інтервал, який задає дорослий.",
+      cardTwoTitle: "Показує одне коротке завдання",
+      cardTwoText: "Дитина бачить коротке запитання або міні-урок замість довгого відволікання від гри.",
+      cardThreeTitle: "Зберігає дані сесії",
+      cardThreeText: "Застосунок зберігає прогрес, щоб його можна було переглянути пізніше.",
+    },
+    download: {
+      eyebrow: "Завантажити",
+      title: "Почніть з актуальної версії для Windows",
+      lead: "Спочатку завантажте desktop-застосунок. Якщо доступні навчальні пакети, їх можна додати окремо пізніше.",
+      cardLabel: "Застосунок для Windows",
+      metaLoading: "Перевіряємо поточну збірку...",
+      button: "Завантажити .exe",
+      statusWaiting: "Якщо кнопка неактивна, актуальну збірку ще не завантажено.",
+      sideOneTitle: "Desktop-застосунок для Windows",
+      sideOneText: "Сайт показує поточну збірку, розмір файлу та час оновлення.",
+      sideTwoTitle: "Навчальні пакети необов'язкові",
+      sideTwoText: "Можна почати тільки із застосунку і додати пакети пізніше, якщо потрібні готові теми.",
+      sideThreeTitle: "Батьківський перегляд працює через ID програми",
+      sideThreeText: "Сторінка сесії відкривається за ID програми та батьківським паролем, який задається в застосунку.",
+    },
+    modules: {
+      eyebrow: "Навчальні пакети",
+      title: "Додайте пакет, якщо потрібні готові теми та завдання",
+      lead: "Навчальні пакети завантажуються окремо. Після завантаження помістіть їх у папку <code>modules</code>, яку використовує застосунок.",
+    },
+    how: {
+      eyebrow: "Як це працює",
+      title: "Як зазвичай користуються застосунком",
+      stepOneTitle: "Установіть застосунок",
+      stepOneText: "Завантажте версію для Windows і запустіть програму на комп'ютері, де використовується Minecraft.",
+      stepTwoTitle: "Виберіть налаштування",
+      stepTwoText: "Дорослий задає інтервал пауз, кількість завдань і батьківський пароль.",
+      stepThreeTitle: "Додайте навчальні пакети за потреби",
+      stepThreeText: "Можна використовувати готові пакети або почати з простої конфігурації лише із застосунком.",
+      stepFourTitle: "Відкрийте батьківський перегляд",
+      stepFourText: "За ID програми та паролем можна відкрити сторінку сесії і подивитися, що відбувається під час гри.",
+      whyLabel: "Що варто знати",
+      statusOneLabel: "Застосунок розрахований на Windows",
+      statusOneValue: "для роботи на настільному комп'ютері",
+      statusTwoLabel: "Завдання мають бути короткими",
+      statusTwoValue: "одна невелика дія перед поверненням",
+      statusThreeLabel: "Навчальні пакети необов'язкові",
+      statusThreeValue: "застосунок може працювати і без них",
+      statusFourLabel: "Для батьківського перегляду потрібні ID та пароль",
+      statusFourValue: "вони задаються в застосунку",
+    },
+    monitor: {
+      eyebrow: "Батьківський перегляд",
+      title: "Батьки можуть відкрити сторінку сесії за ID програми та паролем",
+      lead:
+        "Введіть <strong>ID програми</strong>, який показує застосунок, і <strong>батьківський пароль</strong>, створений під час налаштування. Після цього сторінка почне автоматично оновлювати дані сесії.",
+      form: {
+        programIdLabel: "ID програми",
+        programIdPlaceholder: "Наприклад AB12CD34",
+        passwordLabel: "Батьківський пароль",
+        passwordPlaceholder: "Введіть пароль",
+        submit: "Відкрити сторінку сесії",
+      },
+      emptyLabel: "Сторінка сесії",
+      emptyTitle: "Після входу тут показується поточний стан однієї активної сесії.",
+      emptyText:
+        "Тут можуть відображатися активна тема, останні дії, кількість пауз, відповіді, монети та основні налаштування застосунку.",
+      previewOneLabel: "ID програми",
+      previewOneValue: "лише одна сесія",
+      previewTwoLabel: "Батьківський пароль",
+      previewTwoValue: "приватний доступ",
+      previewThreeLabel: "Автооновлення",
+      previewThreeValue: "кожні 15 секунд",
+      previewFourLabel: "Живі дані",
+      previewFourValue: "статус і статистика",
+      dashboardLabel: "Поточна сесія",
+      refresh: "Оновити зараз",
+      logout: "Вийти",
+      runtimeTitle: "Стан сесії",
+      settingsTitle: "Налаштування застосунку",
+    },
+    footer: {
+      text: "Minecraft Coach — це застосунок для Windows, який додає короткі навчальні паузи до сесій Minecraft і дає простий батьківський перегляд.",
+    },
+    dynamic: {
+      moduleCardLabel: "Навчальний пакет",
+      moduleFallbackDescription: "Детальний опис ще не додано, але пакет уже можна завантажити і використовувати в застосунку.",
+      moduleTopics: "Тем: {count}",
+      moduleLevels: "Рівнів: {count}",
+      moduleDownload: "Завантажити пакет",
+      modulesEmptyTitle: "Навчальні пакети поки недоступні",
+      modulesEmptyText: "Коли пакети з'являться в каталозі <code>modules/</code>, вони автоматично відобразяться тут.",
+      downloadReady: "Актуальна збірка для Windows готова до завантаження.",
+      downloadMissingMeta: "Збірка для Windows зараз недоступна.",
+      downloadMissingStatus: "Спробуйте пізніше або завантажте нову збірку, щоб кнопка знову стала активною.",
+      catalogErrorMeta: "Не вдалося отримати каталог завантажень.",
+      catalogErrorStatus: "Помилка каталогу: {error}",
+      catalogErrorTitle: "Навчальні пакети зараз недоступні",
+      catalogErrorText: "Перевірте, що backend запущений і маршрут <code>/downloads/catalog</code> доступний.",
+      loginLoading: "Вхід виконано. Завантажуємо дані сесії...",
+      monitorOpenError: "Не вдалося відкрити сторінку сесії: {error}",
+      loginError: "Помилка входу: {error}",
+    },
+  },
+};
+
+function deepMergeTranslations(target, source) {
+  Object.entries(source).forEach(([key, value]) => {
+    if (value && typeof value === "object" && !Array.isArray(value)) {
+      if (!target[key] || typeof target[key] !== "object" || Array.isArray(target[key])) {
+        target[key] = {};
+      }
+      deepMergeTranslations(target[key], value);
+      return;
+    }
+
+    target[key] = value;
+  });
+
+  return target;
+}
+
+Object.entries(translationOverrides).forEach(([language, override]) => {
+  if (!translations[language]) {
+    translations[language] = {};
+  }
+  deepMergeTranslations(translations[language], override);
+});
+
 let refreshTimer = null;
 let lastDashboardPayload = null;
 let loginMessageState = null;
@@ -1526,12 +2486,15 @@ function normalizeLanguage(language) {
     .replace("_", "-")
     .split("-", 1)[0];
 
-  return supportedLanguages.includes(code) ? code : "ru";
+  return supportedLanguages.includes(code) ? code : defaultLanguage;
 }
 
 function resolveInitialLanguage() {
-  const queryLanguage = normalizeLanguage(new URLSearchParams(window.location.search).get("lang"));
-  if (supportedLanguages.includes(queryLanguage) && new URLSearchParams(window.location.search).get("lang")) {
+  const params = new URLSearchParams(window.location.search);
+  const rawQueryLanguage = params.get("lang");
+  const queryLanguage = normalizeLanguage(rawQueryLanguage);
+
+  if (rawQueryLanguage && supportedLanguages.includes(queryLanguage)) {
     return queryLanguage;
   }
 
@@ -1542,11 +2505,12 @@ function resolveInitialLanguage() {
       return saved;
     }
   }
-  return normalizeLanguage(navigator.language || navigator.userLanguage || "ru");
+
+  return defaultLanguage;
 }
 
 function getLocale() {
-  return languageLocales[currentLanguage] || languageLocales.ru;
+  return languageLocales[currentLanguage] || languageLocales[defaultLanguage];
 }
 
 function escapeHtml(value) {
@@ -1571,7 +2535,7 @@ function getNestedValue(object, path) {
 function translate(key, replacements = {}, language = currentLanguage) {
   let value = getNestedValue(translations[language], key);
   if (value === undefined) {
-    value = getNestedValue(translations.ru, key);
+    value = getNestedValue(translations[defaultLanguage], key);
   }
   if (typeof value !== "string") {
     return key;
@@ -2013,6 +2977,10 @@ async function loginToSession(event) {
 
 function applyTranslations() {
   document.documentElement.lang = currentLanguage;
+  document.documentElement.dataset.language = currentLanguage;
+  if (document.body) {
+    document.body.dataset.language = currentLanguage;
+  }
   document.title = translate("meta.title");
 
   const metaDescription = document.querySelector('meta[name="description"]');
@@ -2040,17 +3008,16 @@ function applyTranslations() {
     element.setAttribute("alt", translate(element.dataset.i18nAlt));
   });
 
-  const languageSelect = document.getElementById("language-select");
-  if (languageSelect) {
-    languageSelect.value = currentLanguage;
-  }
+  updateLanguageControls();
 
   refreshLoginMessage();
 }
 
 function setLanguage(language, options = {}) {
   currentLanguage = normalizeLanguage(language);
-  localStorage.setItem(languageStorageKey, currentLanguage);
+  if (options.persist !== false) {
+    localStorage.setItem(languageStorageKey, currentLanguage);
+  }
   applyTranslations();
 
   if (options.reloadCatalog !== false) {
@@ -2062,13 +3029,125 @@ function setLanguage(language, options = {}) {
   }
 }
 
-function initLanguageSwitcher() {
-  const languageSelect = document.getElementById("language-select");
-  if (!languageSelect) return;
+function hasSavedLanguage() {
+  const savedRaw = localStorage.getItem(languageStorageKey);
+  return Boolean(savedRaw && supportedLanguages.includes(normalizeLanguage(savedRaw)));
+}
 
-  languageSelect.value = currentLanguage;
-  languageSelect.addEventListener("change", (event) => {
-    setLanguage(event.target.value);
+function hasQueryLanguage() {
+  const rawQueryLanguage = new URLSearchParams(window.location.search).get("lang");
+  return Boolean(rawQueryLanguage && supportedLanguages.includes(normalizeLanguage(rawQueryLanguage)));
+}
+
+function shouldPromptForLanguageChoice() {
+  return !hasQueryLanguage() && !hasSavedLanguage();
+}
+
+function updateLanguageControls() {
+  const currentLabel = document.getElementById("language-current-label");
+  if (currentLabel) {
+    currentLabel.textContent = languageNames[currentLanguage] || languageNames[defaultLanguage];
+  }
+
+  document.querySelectorAll("[data-language-choice]").forEach((button) => {
+    const isActive = button.dataset.languageChoice === currentLanguage;
+    button.classList.toggle("is-active", isActive);
+    button.setAttribute("aria-pressed", String(isActive));
+  });
+}
+
+function closeLanguageMenu() {
+  const trigger = document.getElementById("language-trigger");
+  const panel = document.getElementById("language-menu-panel");
+  if (!trigger || !panel) return;
+
+  panel.classList.add("hidden");
+  trigger.setAttribute("aria-expanded", "false");
+}
+
+function toggleLanguageMenu(forceOpen) {
+  const trigger = document.getElementById("language-trigger");
+  const panel = document.getElementById("language-menu-panel");
+  if (!trigger || !panel) return;
+
+  const shouldOpen = typeof forceOpen === "boolean" ? forceOpen : panel.classList.contains("hidden");
+  panel.classList.toggle("hidden", !shouldOpen);
+  trigger.setAttribute("aria-expanded", String(shouldOpen));
+}
+
+function showLanguagePrompt() {
+  const modal = document.getElementById("language-modal");
+  if (!modal) return;
+
+  modal.classList.remove("hidden");
+  modal.setAttribute("aria-hidden", "false");
+  document.body.classList.add("modal-open");
+}
+
+function hideLanguagePrompt() {
+  const modal = document.getElementById("language-modal");
+  if (!modal) return;
+
+  modal.classList.add("hidden");
+  modal.setAttribute("aria-hidden", "true");
+  document.body.classList.remove("modal-open");
+}
+
+function initLanguageControls() {
+  const trigger = document.getElementById("language-trigger");
+  const panel = document.getElementById("language-menu-panel");
+  const modal = document.getElementById("language-modal");
+  const modalDialog = modal?.querySelector(".language-modal__dialog");
+  const continueButton = document.getElementById("language-modal-continue");
+
+  updateLanguageControls();
+
+  if (trigger) {
+    trigger.addEventListener("click", (event) => {
+      event.stopPropagation();
+      toggleLanguageMenu();
+    });
+  }
+
+  if (panel) {
+    panel.addEventListener("click", (event) => {
+      event.stopPropagation();
+    });
+  }
+
+  if (modalDialog) {
+    modalDialog.addEventListener("click", (event) => {
+      event.stopPropagation();
+    });
+  }
+
+  document.querySelectorAll("[data-language-choice]").forEach((button) => {
+    button.addEventListener("click", () => {
+      setLanguage(button.dataset.languageChoice);
+      closeLanguageMenu();
+      hideLanguagePrompt();
+    });
+  });
+
+  if (continueButton) {
+    continueButton.addEventListener("click", () => {
+      setLanguage(defaultLanguage);
+      hideLanguagePrompt();
+    });
+  }
+
+  document.addEventListener("click", () => {
+    closeLanguageMenu();
+  });
+
+  document.addEventListener("keydown", (event) => {
+    if (event.key !== "Escape") return;
+
+    closeLanguageMenu();
+    if (modal && !modal.classList.contains("hidden")) {
+      setLanguage(currentLanguage);
+      hideLanguagePrompt();
+    }
   });
 }
 
@@ -2115,12 +3194,18 @@ function initHeaderState() {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
+  const promptForLanguage = shouldPromptForLanguageChoice();
+
   setLanguage(currentLanguage, {
     reloadCatalog: false,
     rerenderDashboard: false,
+    persist: !promptForLanguage,
   });
 
-  initLanguageSwitcher();
+  initLanguageControls();
+  if (promptForLanguage) {
+    showLanguagePrompt();
+  }
   initRevealAnimations();
   initHeaderState();
   loadCatalog();
