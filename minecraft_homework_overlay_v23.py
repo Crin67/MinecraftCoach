@@ -13,7 +13,7 @@ import tkinter as tk
 from pathlib import Path
 from tkinter import filedialog, messagebox
 
-from minecraft_homework_overlay_v21 import (
+from minecraft_coach.app_shared import (
     ACCENT,
     ACCENT_2,
     APP_TITLE,

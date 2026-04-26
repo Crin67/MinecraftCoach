@@ -9,7 +9,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-from minecraft_homework_overlay_v21 import (
+from .app_shared import (
     DEFAULT_BREAK_SECONDS,
     TASKS_PER_BREAK,
     default_supports,
@@ -1686,9 +1686,12 @@ class LocalDB:
     def get_parent_password_hash(self) -> str:
         with self.connect() as con:
             row = con.execute(
-                "SELECT value FROM settings WHERE key='parent_password_hash' LIMIT 1"
+                "SELECT value_json FROM settings WHERE key='parent_password_hash' LIMIT 1"
             ).fetchone()
-        return str(row["value"]) if row and row["value"] else ""
+        if not row:
+            return ""
+        value = _json_loads(row["value_json"], row["value_json"])
+        return str(value) if value else ""
 
     def verify_parent_password(self, password: str) -> bool:
         settings = self.get_settings()
