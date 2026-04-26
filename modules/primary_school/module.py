@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from collections import defaultdict
 
-from minecraft_homework_overlay_v21 import make_child_tasks
+from minecraft_coach.app_shared import make_child_tasks
 
 
 def build_module() -> dict:
