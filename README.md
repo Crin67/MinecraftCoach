@@ -12,6 +12,7 @@ the public website, and the content/module packs used by the project.
 ## Repository Layout
 
 - `minecraft_homework_overlay_v23.py` - current desktop app entry point
+- `minecraft_coach/desktop_app.py` - clean desktop UI flow
 - `minecraft_coach/` - shared desktop package code
 - `modules/` - installable learning modules
 - `module_templates/` - starter templates for new modules
@@ -19,7 +20,6 @@ the public website, and the content/module packs used by the project.
 - `coach_seed_v22.db` - seed database shipped with the app
 - `server/` - FastAPI backend and backend docs
 - `Site/` - static website assets
-- `minecraft_homework_overlay_v*.py` - historical local snapshots kept in the repo
 
 ## What Gets Tracked
 
