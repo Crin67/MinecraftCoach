@@ -39,6 +39,19 @@ from .storage import (
     normalize_program_id,
     validate_parent_password_hash,
 )
+from .route_services import (
+    IdempotencyConflictError,
+    IdempotencyPendingError,
+    authenticate_login,
+    build_content_payload,
+    build_dashboard_payload,
+    build_downloads_catalog_payload,
+    build_health_payload,
+    build_placeholder_update_payload,
+    get_program_record,
+    handle_sync_pull,
+    handle_sync_push,
+)
 
 
 SITE_DIR = ROOT_DIR / "Site"
@@ -413,43 +426,22 @@ class SettingsUpdate(StrictSchema):
 
 @app.get("/health")
 def health() -> dict[str, Any]:
-    return {
-        "status": "ok",
-        "has_site": SITE_DIR.exists(),
-        "has_app_binary": current_downloadable_app() is not None,
-        "module_count": len(module_catalog()),
-        "storage": STORE.storage_info(),
-    }
+    return build_health_payload(
+        has_site=SITE_DIR.exists(),
+        has_app_binary=current_downloadable_app() is not None,
+        module_count=len(module_catalog()),
+        storage_info=STORE.storage_info(),
+    )
 
 
 @app.get("/downloads/catalog")
 def downloads_catalog(lang: str | None = None) -> dict[str, Any]:
     app_file = current_downloadable_app()
-    app_payload: dict[str, Any] = {
-        "available": False,
-        "title": "Minecraft Coach Desktop",
-        "download_url": "/downloads/app/latest",
-    }
-    if app_file:
-        stat = app_file.stat()
-        app_payload.update(
-            {
-                "available": True,
-                "filename": app_file.name,
-                "size_bytes": stat.st_size,
-                "updated_at": stat.st_mtime,
-            }
-        )
     modules = [
         {key: value for key, value in item.items() if key != "folder"}
         for item in module_catalog(lang=lang)
     ]
-    return {
-        "ok": True,
-        "app": app_payload,
-        "modules": modules,
-        "update_hint": "Replace dist/MinecraftCoach.exe and drop module folders into modules/.",
-    }
+    return build_downloads_catalog_payload(app_file, modules)
 
 
 @app.get("/downloads/app/latest")
@@ -484,66 +476,36 @@ def download_module(slug: str):
 def login(payload: LoginRequest, request: Request) -> dict[str, Any]:
     client_ip = get_client_ip(request)
     try:
-        program_id = normalize_program_id(payload.program_id)
-    except ValueError as exc:
-        STORE.log_audit_event(
-            "auth_login",
-            ip_address=client_ip,
-            program_id=str(payload.program_id or "").strip().upper(),
-            success=False,
-            details={"reason": "invalid_program_id"},
+        return authenticate_login(
+            STORE,
+            program_id=payload.program_id,
+            parent_password=payload.parent_password,
+            client_ip=client_ip,
         )
+    except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
-    authenticated = STORE.authenticate(program_id, payload.parent_password)
-    STORE.log_audit_event(
-        "auth_login",
-        ip_address=client_ip,
-        program_id=program_id,
-        success=authenticated,
-        details={"route": "/auth/login"},
-    )
-    if not authenticated:
-        raise HTTPException(status_code=401, detail="Invalid program_id or parent_password")
-    session_token = STORE.create_session(program_id, ip_address=client_ip)
-    record = STORE.get_program(program_id) or {}
-    return {
-        "ok": True,
-        "session_token": session_token,
-        "program_id": program_id,
-        "updated_at": record.get("updated_at"),
-    }
+    except PermissionError as exc:
+        raise HTTPException(status_code=401, detail=str(exc)) from exc
 
 
 @app.get("/dashboard")
 def dashboard(authorization: str | None = Header(default=None, alias="Authorization")) -> dict[str, Any]:
     program_id = require_program_id_from_token(authorization)
-    record = STORE.get_program(program_id)
-    if not record:
-        raise HTTPException(status_code=404, detail="Program snapshot was not found")
-    snapshot = dict(record.get("snapshot") or {})
-    return {
-        "ok": True,
-        "program_id": program_id,
-        "updated_at": record.get("updated_at"),
-        **snapshot,
-    }
+    try:
+        record = get_program_record(STORE, program_id)
+    except LookupError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    return build_dashboard_payload(program_id, record)
 
 
 @app.get("/content")
 def content(authorization: str | None = Header(default=None, alias="Authorization")) -> dict[str, Any]:
     program_id = require_program_id_from_token(authorization)
-    record = STORE.get_program(program_id)
-    if not record:
-        raise HTTPException(status_code=404, detail="Program snapshot was not found")
-    snapshot = dict(record.get("snapshot") or {})
-    return {
-        "ok": True,
-        "program_id": program_id,
-        "content": snapshot.get("content") or {},
-        "dashboard": snapshot.get("dashboard") or {},
-        "runtime": snapshot.get("runtime") or {},
-        "updated_at": record.get("updated_at"),
-    }
+    try:
+        record = get_program_record(STORE, program_id)
+    except LookupError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    return build_content_payload(program_id, record)
 
 
 @app.put("/topics/{topic_id}")
@@ -553,12 +515,12 @@ def update_topic(
     authorization: str | None = Header(default=None, alias="Authorization"),
 ) -> dict[str, Any]:
     require_program_id_from_token(authorization)
-    return {
-        "ok": False,
-        "message": "Remote editing is not implemented yet.",
-        "topic_id": topic_id,
-        "payload": dump_model(payload),
-    }
+    return build_placeholder_update_payload(
+        key="topic_id",
+        identifier=topic_id,
+        payload=dump_model(payload),
+        message="Remote editing is not implemented yet.",
+    )
 
 
 @app.put("/tasks/{task_id}")
@@ -568,12 +530,12 @@ def update_task(
     authorization: str | None = Header(default=None, alias="Authorization"),
 ) -> dict[str, Any]:
     require_program_id_from_token(authorization)
-    return {
-        "ok": False,
-        "message": "Remote editing is not implemented yet.",
-        "task_id": task_id,
-        "payload": dump_model(payload),
-    }
+    return build_placeholder_update_payload(
+        key="task_id",
+        identifier=task_id,
+        payload=dump_model(payload),
+        message="Remote editing is not implemented yet.",
+    )
 
 
 @app.put("/settings")
@@ -582,11 +544,11 @@ def update_settings(
     authorization: str | None = Header(default=None, alias="Authorization"),
 ) -> dict[str, Any]:
     require_program_id_from_token(authorization)
-    return {
-        "ok": False,
-        "message": "Remote settings editing is not implemented yet.",
-        "payload": dump_model(payload),
-    }
+    return build_placeholder_update_payload(
+        key="settings",
+        payload=dump_model(payload),
+        message="Remote settings editing is not implemented yet.",
+    )
 
 
 @app.post("/sync/push")
@@ -609,140 +571,40 @@ def sync_push(
         )
         raise HTTPException(status_code=400, detail=str(exc)) from exc
     fingerprint = sync_fingerprint_from_canonical(canonical)
-    state = STORE.begin_idempotent_request(scope="sync_push", key=key, fingerprint=fingerprint)
-    if state["state"] == "conflict":
-        STORE.log_audit_event(
-            "sync_push",
-            ip_address=client_ip,
-            program_id=canonical["program_id"],
-            success=False,
-            details={"reason": "idempotency_conflict"},
-        )
-        raise HTTPException(
-            status_code=409,
-            detail="Idempotency-Key was already used for a different payload",
-        )
-    if state["state"] == "pending":
-        STORE.log_audit_event(
-            "sync_push",
-            ip_address=client_ip,
-            program_id=canonical["program_id"],
-            success=False,
-            details={"reason": "idempotency_pending"},
-        )
-        raise HTTPException(
-            status_code=409,
-            detail="A request with the same Idempotency-Key is already being processed",
-        )
-    if state["state"] == "replay":
-        replay = dict(state.get("response") or {})
-        replay["idempotent_replay"] = True
-        STORE.log_audit_event(
-            "sync_push",
-            ip_address=client_ip,
-            program_id=canonical["program_id"],
-            success=True,
-            details={"reason": "idempotent_replay"},
-        )
-        return replay
-
     try:
-        record = STORE.upsert_snapshot(
-            program_id=canonical["program_id"],
-            parent_password_hash=canonical["parent_password_hash"],
-            payload=canonical["payload"],
-            device_id=canonical["device_id"],
-            checkpoint=canonical["checkpoint"],
+        return handle_sync_push(
+            STORE,
+            canonical=canonical,
+            key=key,
+            fingerprint=fingerprint,
+            client_ip=client_ip,
         )
+    except IdempotencyConflictError as exc:
+        raise HTTPException(status_code=409, detail=str(exc)) from exc
+    except IdempotencyPendingError as exc:
+        raise HTTPException(status_code=409, detail=str(exc)) from exc
     except PermissionError as exc:
-        STORE.abandon_idempotent_request(scope="sync_push", key=key)
-        STORE.log_audit_event(
-            "sync_push",
-            ip_address=client_ip,
-            program_id=canonical["program_id"],
-            success=False,
-            details={"reason": str(exc)},
-        )
         raise HTTPException(status_code=403, detail=str(exc)) from exc
     except ValueError as exc:
-        STORE.abandon_idempotent_request(scope="sync_push", key=key)
-        STORE.log_audit_event(
-            "sync_push",
-            ip_address=client_ip,
-            program_id=canonical["program_id"],
-            success=False,
-            details={"reason": str(exc)},
-        )
         raise HTTPException(status_code=400, detail=str(exc)) from exc
-    response_payload = {
-        "ok": True,
-        "program_id": record["program_id"],
-        "updated_at": record["updated_at"],
-    }
-    STORE.commit_idempotent_request(
-        scope="sync_push",
-        key=key,
-        fingerprint=fingerprint,
-        response=response_payload,
-    )
-    STORE.log_audit_event(
-        "sync_push",
-        ip_address=client_ip,
-        program_id=canonical["program_id"],
-        success=True,
-        details={"device_id": canonical["device_id"], "checkpoint": canonical["checkpoint"]},
-    )
-    return response_payload
 
 
 @app.post("/sync/pull")
 def sync_pull(payload: SyncEnvelope, request: Request) -> dict[str, Any]:
     client_ip = get_client_ip(request)
     try:
-        program_id = normalize_program_id(payload.program_id)
-        parent_hash = validate_parent_password_hash(payload.parent_password_hash)
-    except (PermissionError, ValueError) as exc:
-        STORE.log_audit_event(
-            "sync_pull",
-            ip_address=client_ip,
-            program_id=str(payload.program_id or "").strip().upper(),
-            success=False,
-            details={"reason": str(exc)},
+        return handle_sync_pull(
+            STORE,
+            payload_program_id=payload.program_id,
+            payload_parent_password_hash=payload.parent_password_hash,
+            client_ip=client_ip,
         )
+    except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
-    if not STORE.verify_hash(program_id, parent_hash):
-        STORE.log_audit_event(
-            "sync_pull",
-            ip_address=client_ip,
-            program_id=program_id,
-            success=False,
-            details={"reason": "hash_mismatch"},
-        )
-        raise HTTPException(status_code=403, detail="parent_password_hash does not match the stored hash")
-    record = STORE.get_program(program_id)
-    if not record:
-        STORE.log_audit_event(
-            "sync_pull",
-            ip_address=client_ip,
-            program_id=program_id,
-            success=False,
-            details={"reason": "program_not_found"},
-        )
-        raise HTTPException(status_code=404, detail="Program snapshot was not found")
-    stored_snapshot = dict(record.get("snapshot") or {})
-    STORE.log_audit_event(
-        "sync_pull",
-        ip_address=client_ip,
-        program_id=program_id,
-        success=True,
-        details={"route": "/sync/pull"},
-    )
-    return {
-        "ok": True,
-        "program_id": record["program_id"],
-        "updated_at": record.get("updated_at"),
-        "payload": stored_snapshot,
-    }
+    except PermissionError as exc:
+        raise HTTPException(status_code=403, detail=str(exc)) from exc
+    except LookupError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
 
 
 @app.get("/")
