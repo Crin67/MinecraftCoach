@@ -119,23 +119,6 @@ def try_pause_minecraft_window() -> None:
         hwnd = user32.GetForegroundWindow()
         if not hwnd:
             return
-            self.feedback.config(
-                text={
-                    "ru": "Тема изучена. Можно переходить к заданиям.",
-                    "pl": "Temat przeczytany. Mozna przejsc do zadan.",
-                    "en": "Lesson reviewed. You can continue to the tasks.",
-                }.get(self.lang, "Lesson reviewed. You can continue to the tasks."),
-                fg=GOOD,
-            )
-            self.feedback.config(
-                text={
-                    "ru": "Тема изучена. Можно переходить к заданиям.",
-                    "pl": "Temat przeczytany. Mozna przejsc do zadan.",
-                    "en": "Lesson reviewed. You can continue to the tasks.",
-                }.get(self.lang, "Lesson reviewed. You can continue to the tasks."),
-                fg=GOOD,
-            )
-            return
         title_buffer = ctypes.create_unicode_buffer(512)
         user32.GetWindowTextW(hwnd, title_buffer, 512)
         title = title_buffer.value.lower()
@@ -145,6 +128,7 @@ def try_pause_minecraft_window() -> None:
         user32.keybd_event(0x1B, 0, 0x0002, 0)
     except Exception:
         return
+
 class ParentPanelV23(tk.Toplevel):
     def __init__(self, app: "MinecraftCoachV23") -> None:
         super().__init__(app.root)
@@ -2601,18 +2585,25 @@ class MinecraftCoachV23:
             self.show_start_screen()
         return modules
 
+    def _clear_lan_server_state(self) -> None:
+        self.lan_server = None
+        self.lan_url = ""
+
+    def stop_lan_server(self) -> None:
+        if self.lan_server:
+            self.lan_server.stop()
+        self._clear_lan_server_state()
+
     def start_lan_server_if_needed(self) -> None:
         if not self.settings.get("lan_admin_enabled", True):
             self.lan_url = ""
             return
         try:
-            if self.lan_server:
-                self.lan_server.stop()
+            self.stop_lan_server()
             self.lan_server = LanAdminServer(self)
             self.lan_url = self.lan_server.start()
         except Exception:
-            self.lan_server = None
-            self.lan_url = ""
+            self._clear_lan_server_state()
 
     def format_seconds_compact(self, total_seconds: int | None) -> str:
         seconds = max(0, safe_int(total_seconds, 0))
@@ -2696,9 +2687,18 @@ class MinecraftCoachV23:
             self.finish_remote_sync(result)
         self.schedule_remote_sync_result_poll()
 
+    def _remote_sync_base_url(self) -> str:
+        return str(self.settings.get("server_base_url") or "").strip()
+
+    def _remote_sync_credentials(self) -> tuple[str, str, str]:
+        return (
+            self._remote_sync_base_url(),
+            str(self.settings.get("program_id") or "").strip(),
+            self.db.get_parent_password_hash(),
+        )
+
     def queue_remote_sync(self, delay_ms: int = 1200) -> None:
-        base_url = str(self.settings.get("server_base_url") or "").strip()
-        if not base_url:
+        if not self._remote_sync_base_url():
             return
         if self.remote_sync_debounce_after_id:
             self.root.after_cancel(self.remote_sync_debounce_after_id)
@@ -2706,9 +2706,7 @@ class MinecraftCoachV23:
 
     def perform_remote_sync(self) -> None:
         self.remote_sync_debounce_after_id = None
-        base_url = str(self.settings.get("server_base_url") or "").strip()
-        parent_hash = self.db.get_parent_password_hash()
-        program_id = str(self.settings.get("program_id") or "").strip()
+        base_url, program_id, parent_hash = self._remote_sync_credentials()
         if not base_url or not parent_hash or not program_id:
             return
         if self.remote_sync_inflight:
@@ -2745,8 +2743,19 @@ class MinecraftCoachV23:
         if self.remote_sync_requested:
             self.remote_sync_requested = False
             self.queue_remote_sync(400)
-        elif not ok and self.settings.get("server_base_url"):
+        elif not ok and self._remote_sync_base_url():
             self.queue_remote_sync(12000)
+
+    def _cancel_remote_sync_callbacks(self) -> None:
+        if self.remote_sync_loop_after_id:
+            self.root.after_cancel(self.remote_sync_loop_after_id)
+            self.remote_sync_loop_after_id = None
+        if self.remote_sync_debounce_after_id:
+            self.root.after_cancel(self.remote_sync_debounce_after_id)
+            self.remote_sync_debounce_after_id = None
+        if self.remote_sync_poll_after_id:
+            self.root.after_cancel(self.remote_sync_poll_after_id)
+            self.remote_sync_poll_after_id = None
 
     def persist_stats(self) -> None:
         self.stats["last_activity"] = self.stats.get("last_activity") or ""
@@ -2866,20 +2875,24 @@ class MinecraftCoachV23:
         self.window_lock_suspended = suspended
         self.apply_window_lock_state(force=True)
 
+    def _remember_window_restore_state(self) -> None:
+        if self.window_restore_geometry:
+            return
+        try:
+            self.window_restore_state = str(self.root.state())
+        except Exception:
+            self.window_restore_state = "normal"
+        try:
+            self.window_restore_geometry = self.root.geometry()
+        except Exception:
+            self.window_restore_geometry = "1320x840"
+
     def apply_window_lock_state(self, *, force: bool = False) -> None:
         locked = self.should_enforce_window_lock()
         if locked == self.window_lock_applied and not force:
             return
         if locked:
-            if not self.window_restore_geometry:
-                try:
-                    self.window_restore_state = str(self.root.state())
-                except Exception:
-                    self.window_restore_state = "normal"
-                try:
-                    self.window_restore_geometry = self.root.geometry()
-                except Exception:
-                    self.window_restore_geometry = "1320x840"
+            self._remember_window_restore_state()
             self.window_lock_applied = True
             try:
                 self.root.resizable(False, False)
@@ -3281,31 +3294,17 @@ class MinecraftCoachV23:
         self.manual_pause_seconds_left -= 1
         self.manual_pause_after_id = self.root.after(1000, self.tick_manual_pause_timer)
 
-    def begin_manual_pause(self) -> None:
-        if not self.current_topic or self.manual_pause_state is not None:
-            return
-        if self.remaining_pause_uses() <= 0:
-            messagebox.showinfo(
-                APP_TITLE,
-                self.ui_text(
-                    "Паузы закончились. Можно купить дополнительную паузу в магазине.",
-                    "Pauzy sie skonczyly. Dodatkowa pauze mozna kupic w sklepie.",
-                    "No pauses left. You can buy an extra pause in the shop.",
-                ),
-                parent=self.root,
-            )
-            return
-        paused_state: dict[str, object]
+    def _build_manual_pause_state(self) -> dict[str, object]:
         if self.current_task:
-            paused_state = {
+            return {
                 "kind": "task",
                 "task": dict(self.current_task),
                 "current_break_tasks": [dict(item) for item in self.current_break_tasks],
                 "current_index": self.current_index,
                 "memory_seconds_left": self.memory_seconds_left,
             }
-        elif self.lesson_blocks:
-            paused_state = {
+        if self.lesson_blocks:
+            return {
                 "kind": "lesson",
                 "lesson_blocks": [dict(item) for item in self.lesson_blocks],
                 "lesson_index": self.lesson_index,
@@ -3313,14 +3312,29 @@ class MinecraftCoachV23:
                 "current_break_tasks": [dict(item) for item in self.current_break_tasks],
                 "current_index": self.current_index,
             }
-        else:
-            paused_state = {
-                "kind": "waiting",
-                "remaining_break_seconds": max(
-                    1,
-                    self.remaining_break_seconds() or safe_int(self.settings.get("break_seconds"), 300),
+        return {
+            "kind": "waiting",
+            "remaining_break_seconds": max(
+                1,
+                self.remaining_break_seconds() or safe_int(self.settings.get("break_seconds"), 300),
+            ),
+        }
+
+    def begin_manual_pause(self) -> None:
+        if not self.current_topic or self.manual_pause_state is not None:
+            return
+        if self.remaining_pause_uses() <= 0:
+            messagebox.showinfo(
+                APP_TITLE,
+                self.ui_text(
+                    "????? ???????????. ????? ?????? ?????????????? ????? ? ????????.",
+                    "Pauzy sie skonczyly. Dodatkowa pauze mozna kupic w sklepie.",
+                    "No pauses left. You can buy an extra pause in the shop.",
                 ),
-            }
+                parent=self.root,
+            )
+            return
+        paused_state = self._build_manual_pause_state()
         self.consume_pause_use()
         self.cancel_lesson_timer()
         self.cancel_memory_timer()
@@ -3335,6 +3349,47 @@ class MinecraftCoachV23:
         self.update_pause_button()
         self.queue_remote_sync(200)
 
+    def _restore_manual_pause_lesson(self, state: dict[str, object]) -> None:
+        self.current_break_tasks = [dict(item) for item in (state.get("current_break_tasks") or [])]
+        self.current_index = safe_int(state.get("current_index"), 0)
+        self.lesson_blocks = [dict(item) for item in (state.get("lesson_blocks") or [])]
+        self.lesson_index = min(
+            max(0, safe_int(state.get("lesson_index"), 0)),
+            max(0, len(self.lesson_blocks) - 1),
+        )
+        if self.lesson_blocks:
+            self.show_lesson_block(self.lesson_index)
+            self.cancel_lesson_timer()
+            self.lesson_seconds_left = max(0, safe_int(state.get("lesson_seconds_left"), self.lesson_seconds_left))
+            self.tick_lesson_timer()
+            return
+        self.show_waiting_state()
+        self.schedule_next_break()
+
+    def _restore_manual_pause_task(self, state: dict[str, object]) -> None:
+        self.lesson_blocks = []
+        self.current_break_tasks = [dict(item) for item in (state.get("current_break_tasks") or [])]
+        self.current_index = safe_int(state.get("current_index"), 0)
+        task = state.get("task")
+        if isinstance(task, dict):
+            self.show_task(task)
+            if str(task.get("type") or "") == "memory":
+                self.cancel_memory_timer()
+                self.memory_seconds_left = max(0, safe_int(state.get("memory_seconds_left"), self.memory_seconds_left))
+                self.tick_memory_timer()
+            return
+        self.show_waiting_state()
+        self.schedule_next_break()
+
+    def _restore_manual_pause_waiting(self, state: dict[str, object]) -> None:
+        self.show_waiting_state()
+        self.schedule_next_break(
+            delay_seconds=max(
+                1,
+                safe_int(state.get("remaining_break_seconds"), safe_int(self.settings.get("break_seconds"), 300)),
+            )
+        )
+
     def resume_from_manual_pause(self) -> None:
         state = dict(self.manual_pause_state or {})
         self.cancel_manual_pause_timer()
@@ -3343,43 +3398,11 @@ class MinecraftCoachV23:
         self.hide_overlay()
         kind = str(state.get("kind") or "waiting")
         if kind == "lesson":
-            self.current_break_tasks = [dict(item) for item in (state.get("current_break_tasks") or [])]
-            self.current_index = safe_int(state.get("current_index"), 0)
-            self.lesson_blocks = [dict(item) for item in (state.get("lesson_blocks") or [])]
-            self.lesson_index = min(
-                max(0, safe_int(state.get("lesson_index"), 0)),
-                max(0, len(self.lesson_blocks) - 1),
-            )
-            if self.lesson_blocks:
-                self.show_lesson_block(self.lesson_index)
-                self.cancel_lesson_timer()
-                self.lesson_seconds_left = max(0, safe_int(state.get("lesson_seconds_left"), self.lesson_seconds_left))
-                self.tick_lesson_timer()
-            else:
-                self.show_waiting_state()
-                self.schedule_next_break()
+            self._restore_manual_pause_lesson(state)
         elif kind == "task":
-            self.lesson_blocks = []
-            self.current_break_tasks = [dict(item) for item in (state.get("current_break_tasks") or [])]
-            self.current_index = safe_int(state.get("current_index"), 0)
-            task = state.get("task")
-            if isinstance(task, dict):
-                self.show_task(task)
-                if str(task.get("type") or "") == "memory":
-                    self.cancel_memory_timer()
-                    self.memory_seconds_left = max(0, safe_int(state.get("memory_seconds_left"), self.memory_seconds_left))
-                    self.tick_memory_timer()
-            else:
-                self.show_waiting_state()
-                self.schedule_next_break()
+            self._restore_manual_pause_task(state)
         else:
-            self.show_waiting_state()
-            self.schedule_next_break(
-                delay_seconds=max(
-                    1,
-                    safe_int(state.get("remaining_break_seconds"), safe_int(self.settings.get("break_seconds"), 300)),
-                )
-            )
+            self._restore_manual_pause_waiting(state)
         self.update_pause_button()
         self.queue_remote_sync(200)
 
@@ -4256,14 +4279,17 @@ class MinecraftCoachV23:
             parent=self.shop_window or self.root,
         )
 
-    def buy_shop_extra_pause(self) -> None:
-        if not self.spend_coins(250):
-            return
-        self.settings = self.db.update_settings({"shop_extra_pause_tokens": self.extra_pause_tokens() + 1})
+    def _refresh_after_pause_shop_update(self) -> None:
         self.reload_from_db()
         self.update_pause_button()
         self.refresh_shop_window()
         self.refresh_parent_panel_if_open()
+
+    def buy_shop_extra_pause(self) -> None:
+        if not self.spend_coins(250):
+            return
+        self.settings = self.db.update_settings({"shop_extra_pause_tokens": self.extra_pause_tokens() + 1})
+        self._refresh_after_pause_shop_update()
         messagebox.showinfo(
             APP_TITLE,
             self.ui_text(
@@ -4357,17 +4383,8 @@ class MinecraftCoachV23:
             self.cancel_lesson_timer()
             self.cancel_memory_timer()
             self.cancel_manual_pause_timer()
-            if self.remote_sync_loop_after_id:
-                self.root.after_cancel(self.remote_sync_loop_after_id)
-                self.remote_sync_loop_after_id = None
-            if self.remote_sync_debounce_after_id:
-                self.root.after_cancel(self.remote_sync_debounce_after_id)
-                self.remote_sync_debounce_after_id = None
-            if self.remote_sync_poll_after_id:
-                self.root.after_cancel(self.remote_sync_poll_after_id)
-                self.remote_sync_poll_after_id = None
-            if self.lan_server:
-                self.lan_server.stop()
+            self._cancel_remote_sync_callbacks()
+            self.stop_lan_server()
             self.close_shop_window()
             self.root.destroy()
             return
