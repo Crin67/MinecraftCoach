@@ -68,6 +68,71 @@ def sha256_text(value: str) -> str:
     return hashlib.sha256(value.encode("utf-8")).hexdigest()
 
 
+def normalize_snapshot_input(
+    *,
+    program_id: str,
+    parent_password_hash: str,
+    payload: dict[str, Any],
+    device_id: str | None = None,
+    checkpoint: str | None = None,
+) -> dict[str, Any]:
+    return {
+        "program_id": normalize_program_id(program_id),
+        "parent_password_hash": validate_parent_password_hash(parent_password_hash),
+        "device_id": normalize_client_identifier("device_id", device_id),
+        "checkpoint": normalize_client_identifier("checkpoint", checkpoint),
+        "payload": deepcopy(payload or {}),
+    }
+
+
+def build_public_program_record(
+    *,
+    program_id: str,
+    device_id: str = "",
+    checkpoint: str = "",
+    updated_at: Any = "",
+    snapshot: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    if hasattr(updated_at, "isoformat"):
+        updated_value = updated_at.replace(microsecond=0).isoformat()
+    else:
+        updated_value = str(updated_at or "")
+    normalized_snapshot = snapshot if isinstance(snapshot, dict) else {}
+    return {
+        "program_id": str(program_id or ""),
+        "device_id": str(device_id or ""),
+        "checkpoint": str(checkpoint or ""),
+        "updated_at": updated_value,
+        "snapshot": deepcopy(normalized_snapshot),
+    }
+
+
+def rate_limit_headers(limit: int, remaining: int) -> dict[str, str]:
+    return {
+        "X-RateLimit-Limit": str(limit),
+        "X-RateLimit-Remaining": str(remaining),
+    }
+
+
+def build_audit_event_payload(
+    event_type: str,
+    *,
+    created_at: str,
+    ip_address: str = "",
+    program_id: str = "",
+    success: bool = True,
+    details: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    return {
+        "created_at": created_at,
+        "event_type": str(event_type or "").strip(),
+        "ip_address": str(ip_address or "").strip(),
+        "program_id": str(program_id or "").strip(),
+        "success": bool(success),
+        "details": details or {},
+    }
+
+
 @dataclass(frozen=True)
 class RateLimitRule:
     name: str
@@ -328,27 +393,30 @@ class RemoteStateStore(BaseBackendStore):
         device_id: str | None = None,
         checkpoint: str | None = None,
     ) -> dict[str, Any]:
-        normalized_program_id = normalize_program_id(program_id)
-        normalized_hash = validate_parent_password_hash(parent_password_hash)
-        normalized_device_id = normalize_client_identifier("device_id", device_id)
-        normalized_checkpoint = normalize_client_identifier("checkpoint", checkpoint)
+        normalized = normalize_snapshot_input(
+            program_id=program_id,
+            parent_password_hash=parent_password_hash,
+            payload=payload,
+            device_id=device_id,
+            checkpoint=checkpoint,
+        )
 
         with self._lock:
             state = self._read_unlocked()
             programs = state.setdefault("programs", {})
-            record = dict(programs.get(normalized_program_id) or {})
+            record = dict(programs.get(normalized["program_id"]) or {})
             stored_hash = str(record.get("parent_password_hash") or "")
-            if stored_hash and stored_hash != normalized_hash:
+            if stored_hash and stored_hash != normalized["parent_password_hash"]:
                 raise PermissionError("parent_password_hash does not match the stored hash")
 
             now = utc_now()
-            record["program_id"] = normalized_program_id
-            record["parent_password_hash"] = normalized_hash
-            record["device_id"] = normalized_device_id or str(record.get("device_id") or "")
-            record["checkpoint"] = normalized_checkpoint
+            record["program_id"] = normalized["program_id"]
+            record["parent_password_hash"] = normalized["parent_password_hash"]
+            record["device_id"] = normalized["device_id"] or str(record.get("device_id") or "")
+            record["checkpoint"] = normalized["checkpoint"]
             record["updated_at"] = now
-            record["snapshot"] = deepcopy(payload or {})
-            programs[normalized_program_id] = record
+            record["snapshot"] = normalized["payload"]
+            programs[normalized["program_id"]] = record
             self._write_unlocked(state)
             return self._public_record(record)
 
@@ -466,8 +534,7 @@ class RemoteStateStore(BaseBackendStore):
                 primary_limit = int(result["limit"])
                 primary_remaining = int(result["remaining"])
         return {
-            "X-RateLimit-Limit": str(primary_limit),
-            "X-RateLimit-Remaining": str(primary_remaining),
+            **rate_limit_headers(primary_limit, primary_remaining),
         }
 
     def log_audit_event(
@@ -479,14 +546,14 @@ class RemoteStateStore(BaseBackendStore):
         success: bool = True,
         details: dict[str, Any] | None = None,
     ) -> None:
-        row = {
-            "created_at": utc_now(),
-            "event_type": str(event_type or "").strip(),
-            "ip_address": str(ip_address or "").strip(),
-            "program_id": str(program_id or "").strip(),
-            "success": bool(success),
-            "details": details or {},
-        }
+        row = build_audit_event_payload(
+            event_type,
+            created_at=utc_now(),
+            ip_address=ip_address,
+            program_id=program_id,
+            success=success,
+            details=details,
+        )
         try:
             with self._lock:
                 with self._audit_log_path.open("a", encoding="utf-8") as handle:
@@ -495,14 +562,13 @@ class RemoteStateStore(BaseBackendStore):
             pass
 
     def _public_record(self, record: dict[str, Any]) -> dict[str, Any]:
-        snapshot = deepcopy(record.get("snapshot") or {})
-        return {
-            "program_id": str(record.get("program_id") or ""),
-            "device_id": str(record.get("device_id") or ""),
-            "checkpoint": str(record.get("checkpoint") or ""),
-            "updated_at": str(record.get("updated_at") or ""),
-            "snapshot": snapshot,
-        }
+        return build_public_program_record(
+            program_id=str(record.get("program_id") or ""),
+            device_id=str(record.get("device_id") or ""),
+            checkpoint=str(record.get("checkpoint") or ""),
+            updated_at=record.get("updated_at"),
+            snapshot=record.get("snapshot") or {},
+        )
 
 
 class PostgresBackendStore(BaseBackendStore):
@@ -584,20 +650,13 @@ class PostgresBackendStore(BaseBackendStore):
     def _public_record_from_row(self, row: dict[str, Any] | None) -> dict[str, Any] | None:
         if not row:
             return None
-        snapshot = row.get("snapshot_json") or {}
-        if not isinstance(snapshot, dict):
-            snapshot = {}
-        return {
-            "program_id": str(row.get("program_id") or ""),
-            "device_id": str(row.get("device_id") or ""),
-            "checkpoint": str(row.get("checkpoint") or ""),
-            "updated_at": (
-                row.get("updated_at").replace(microsecond=0).isoformat()
-                if row.get("updated_at")
-                else ""
-            ),
-            "snapshot": deepcopy(snapshot),
-        }
+        return build_public_program_record(
+            program_id=str(row.get("program_id") or ""),
+            device_id=str(row.get("device_id") or ""),
+            checkpoint=str(row.get("checkpoint") or ""),
+            updated_at=row.get("updated_at"),
+            snapshot=row.get("snapshot_json") or {},
+        )
 
     def upsert_snapshot(
         self,
@@ -608,10 +667,13 @@ class PostgresBackendStore(BaseBackendStore):
         device_id: str | None = None,
         checkpoint: str | None = None,
     ) -> dict[str, Any]:
-        normalized_program_id = normalize_program_id(program_id)
-        normalized_hash = validate_parent_password_hash(parent_password_hash)
-        normalized_device_id = normalize_client_identifier("device_id", device_id)
-        normalized_checkpoint = normalize_client_identifier("checkpoint", checkpoint)
+        normalized = normalize_snapshot_input(
+            program_id=program_id,
+            parent_password_hash=parent_password_hash,
+            payload=payload,
+            device_id=device_id,
+            checkpoint=checkpoint,
+        )
         with self.connect() as con:
             self._maybe_cleanup(con)
             existing = con.execute(
@@ -621,10 +683,10 @@ class PostgresBackendStore(BaseBackendStore):
                 WHERE program_id = %s
                 FOR UPDATE
                 """,
-                (normalized_program_id,),
+                (normalized["program_id"],),
             ).fetchone()
             stored_hash = str((existing or {}).get("parent_password_hash") or "")
-            if stored_hash and stored_hash != normalized_hash:
+            if stored_hash and stored_hash != normalized["parent_password_hash"]:
                 raise PermissionError("parent_password_hash does not match the stored hash")
             con.execute(
                 """
@@ -649,22 +711,22 @@ class PostgresBackendStore(BaseBackendStore):
                     updated_at = NOW()
                 """,
                 (
-                    normalized_program_id,
-                    normalized_hash,
-                    normalized_device_id,
-                    normalized_checkpoint,
-                    json.dumps(payload or {}, ensure_ascii=False),
+                    normalized["program_id"],
+                    normalized["parent_password_hash"],
+                    normalized["device_id"],
+                    normalized["checkpoint"],
+                    json.dumps(normalized["payload"], ensure_ascii=False),
                 ),
             )
-            row = self._get_snapshot_row(con, normalized_program_id)
+            row = self._get_snapshot_row(con, normalized["program_id"])
             con.commit()
-        return self._public_record_from_row(row) or {
-            "program_id": normalized_program_id,
-            "device_id": normalized_device_id,
-            "checkpoint": normalized_checkpoint,
-            "updated_at": utc_now(),
-            "snapshot": deepcopy(payload or {}),
-        }
+        return self._public_record_from_row(row) or build_public_program_record(
+            program_id=normalized["program_id"],
+            device_id=normalized["device_id"],
+            checkpoint=normalized["checkpoint"],
+            updated_at=utc_now(),
+            snapshot=normalized["payload"],
+        )
 
     def get_program(self, program_id: str) -> dict[str, Any] | None:
         try:
@@ -1053,10 +1115,7 @@ class PostgresBackendStore(BaseBackendStore):
                     primary_limit = rule.limit
                     primary_remaining = max(0, rule.limit - total - 1)
             con.commit()
-        return {
-            "X-RateLimit-Limit": str(primary_limit),
-            "X-RateLimit-Remaining": str(primary_remaining),
-        }
+        return rate_limit_headers(primary_limit, primary_remaining)
 
     def log_audit_event(
         self,
@@ -1068,6 +1127,14 @@ class PostgresBackendStore(BaseBackendStore):
         details: dict[str, Any] | None = None,
     ) -> None:
         with self.connect() as con:
+            row = build_audit_event_payload(
+                event_type,
+                created_at="",
+                ip_address=ip_address,
+                program_id=program_id,
+                success=success,
+                details=details,
+            )
             con.execute(
                 """
                 INSERT INTO backend_audit_log(
@@ -1081,11 +1148,11 @@ class PostgresBackendStore(BaseBackendStore):
                 VALUES (%s, %s, %s, %s, %s::jsonb, NOW())
                 """,
                 (
-                    str(event_type or "").strip(),
-                    str(ip_address or "").strip(),
-                    str(program_id or "").strip(),
-                    bool(success),
-                    json.dumps(details or {}, ensure_ascii=False),
+                    row["event_type"],
+                    row["ip_address"],
+                    row["program_id"],
+                    row["success"],
+                    json.dumps(row["details"], ensure_ascii=False),
                 ),
             )
             con.commit()
