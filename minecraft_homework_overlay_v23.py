@@ -262,16 +262,19 @@ class ParentPanelV23(tk.Toplevel):
         self.current_tab = tab
         self.frames[tab].pack(fill="both", expand=True)
         self.nav_buttons[tab].configure(bg=ACCENT_2)
-        if tab == "overview":
-            self.refresh_overview()
-        elif tab == "topics":
-            self.refresh_topics()
-        elif tab == "modules":
-            self.refresh_module_editor()
-        elif tab == "tasks":
-            self.refresh_tasks()
-        elif tab == "settings":
-            self.refresh_settings()
+        self._refresh_tab(tab)
+
+    def _refresh_tab(self, tab: str) -> None:
+        refreshers = {
+            "overview": self.refresh_overview,
+            "topics": self.refresh_topics,
+            "modules": self.refresh_module_editor,
+            "tasks": self.refresh_tasks,
+            "settings": self.refresh_settings,
+        }
+        refresher = refreshers.get(tab)
+        if refresher:
+            refresher()
 
     def pane_title(self, parent: tk.Frame, title: str) -> None:
         tk.Label(parent, text=title, bg=BG, fg=TEXT, font=("Segoe UI", 18, "bold")).pack(anchor="w", pady=(0, 12))
@@ -1993,47 +1996,66 @@ class ParentPanelV23(tk.Toplevel):
         self.pane_title(frame, self.tt("settings"))
         card = tk.Frame(frame, bg=CARD, highlightbackground=BORDER, highlightthickness=1)
         card.pack(fill="x")
+        self._init_settings_state()
+        next_row = self._build_settings_field_rows(card)
+        next_row = self._build_settings_language_row(card, next_row)
+        next_row = self._build_settings_program_row(card, next_row)
+        next_row = self._build_settings_password_rows(card, next_row)
+        next_row = self._build_settings_action_row(card, next_row)
+        self._build_settings_modules_section(card, next_row)
+        card.grid_columnconfigure(1, weight=1)
+
+    def _settings_fields(self) -> list[tuple[str, str]]:
+        return [
+            ("break_seconds", self.tt("break_seconds")),
+            ("tasks_per_break", "Tasks per break"),
+            ("lesson_seconds", "Lesson seconds"),
+            ("manual_pause_uses", self.ui_text("????? ??? ??????? (1-2)", "Pauzy ucznia (1-2)", "Student pauses (1-2)")),
+            ("manual_pause_minutes", self.ui_text("???????????? ????? (???)", "Dlugosc pauzy (min)", "Pause length (min)")),
+            ("lan_admin_port", "LAN port"),
+            ("server_base_url", "Server API URL"),
+        ]
+
+    def _init_settings_state(self) -> None:
         self.settings_widgets: dict[str, tk.Widget] = {}
         self.modules_path_var = tk.StringVar(value="")
         self.module_template_var = tk.StringVar(value="")
         self.module_status_var = tk.StringVar(value="")
         self.pause_settings_info_var = tk.StringVar(value="")
-        fields = [
-            ("break_seconds", self.tt("break_seconds")),
-            ("tasks_per_break", "Tasks per break"),
-            ("lesson_seconds", "Lesson seconds"),
-            ("manual_pause_uses", self.ui_text("Паузы для ученика (1-2)", "Pauzy ucznia (1-2)", "Student pauses (1-2)")),
-            ("manual_pause_minutes", self.ui_text("Длительность паузы (мин)", "Dlugosc pauzy (min)", "Pause length (min)")),
-            ("lan_admin_port", "LAN port"),
-            ("server_base_url", "Server API URL"),
-        ]
+
+    def _build_settings_field_rows(self, card: tk.Frame) -> int:
+        fields = self._settings_fields()
         for row_index, (key, label) in enumerate(fields):
             tk.Label(card, text=label, bg=CARD, fg=MUTED).grid(row=row_index, column=0, sticky="w", padx=12, pady=12)
             entry = tk.Entry(card, bg=CENTER, fg=TEXT, insertbackground=TEXT, relief="flat")
             entry.grid(row=row_index, column=1, sticky="ew", padx=12, pady=12)
             self.settings_widgets[key] = entry
+        return len(fields)
 
-        lang_row = len(fields)
-        tk.Label(card, text=self.tt("language"), bg=CARD, fg=MUTED).grid(row=lang_row, column=0, sticky="w", padx=12, pady=12)
+    def _build_settings_language_row(self, card: tk.Frame, row_index: int) -> int:
+        tk.Label(card, text=self.tt("language"), bg=CARD, fg=MUTED).grid(row=row_index, column=0, sticky="w", padx=12, pady=12)
         self.parent_lang_var = tk.StringVar(value=self.app.lang)
-        tk.OptionMenu(card, self.parent_lang_var, "ru", "pl", "en").grid(row=lang_row, column=1, sticky="w", padx=12, pady=12)
+        tk.OptionMenu(card, self.parent_lang_var, "ru", "pl", "en").grid(row=row_index, column=1, sticky="w", padx=12, pady=12)
+        return row_index + 1
 
-        program_row = lang_row + 1
-        tk.Label(card, text=self.tt("program_id"), bg=CARD, fg=MUTED).grid(row=program_row, column=0, sticky="w", padx=12, pady=12)
+    def _build_settings_program_row(self, card: tk.Frame, row_index: int) -> int:
+        tk.Label(card, text=self.tt("program_id"), bg=CARD, fg=MUTED).grid(row=row_index, column=0, sticky="w", padx=12, pady=12)
         self.program_id_label = tk.Label(card, text="", bg=CARD, fg=TEXT, font=("Consolas", 12, "bold"))
-        self.program_id_label.grid(row=program_row, column=1, sticky="w", padx=12, pady=12)
+        self.program_id_label.grid(row=row_index, column=1, sticky="w", padx=12, pady=12)
+        return row_index + 1
 
-        password_row = program_row + 1
-        tk.Label(card, text="New password", bg=CARD, fg=MUTED).grid(row=password_row, column=0, sticky="w", padx=12, pady=12)
+    def _build_settings_password_rows(self, card: tk.Frame, row_index: int) -> int:
+        tk.Label(card, text="New password", bg=CARD, fg=MUTED).grid(row=row_index, column=0, sticky="w", padx=12, pady=12)
         self.password_entry = tk.Entry(card, show="*", bg=CENTER, fg=TEXT, insertbackground=TEXT, relief="flat")
-        self.password_entry.grid(row=password_row, column=1, sticky="ew", padx=12, pady=12)
+        self.password_entry.grid(row=row_index, column=1, sticky="ew", padx=12, pady=12)
 
-        confirm_row = password_row + 1
+        confirm_row = row_index + 1
         tk.Label(card, text="Repeat password", bg=CARD, fg=MUTED).grid(row=confirm_row, column=0, sticky="w", padx=12, pady=12)
         self.password_confirm_entry = tk.Entry(card, show="*", bg=CENTER, fg=TEXT, insertbackground=TEXT, relief="flat")
         self.password_confirm_entry.grid(row=confirm_row, column=1, sticky="ew", padx=12, pady=12)
+        return confirm_row + 1
 
-        button_row = confirm_row + 1
+    def _build_settings_action_row(self, card: tk.Frame, row_index: int) -> int:
         tk.Button(
             card,
             text=self.tt("save"),
@@ -2044,12 +2066,13 @@ class ParentPanelV23(tk.Toplevel):
             font=("Segoe UI", 11, "bold"),
             padx=16,
             pady=8,
-        ).grid(row=button_row, column=0, columnspan=2, sticky="w", padx=12, pady=12)
+        ).grid(row=row_index, column=0, columnspan=2, sticky="w", padx=12, pady=12)
+        return row_index + 1
 
-        modules_row = button_row + 1
-        tk.Label(card, text=self.ui_text("Модули", "Moduly", "Modules"), bg=CARD, fg=MUTED).grid(row=modules_row, column=0, sticky="nw", padx=12, pady=12)
+    def _build_settings_modules_section(self, card: tk.Frame, row_index: int) -> None:
+        tk.Label(card, text=self.ui_text("??????", "Moduly", "Modules"), bg=CARD, fg=MUTED).grid(row=row_index, column=0, sticky="nw", padx=12, pady=12)
         modules_box = tk.Frame(card, bg=CARD_2, highlightbackground=BORDER, highlightthickness=1)
-        modules_box.grid(row=modules_row, column=1, sticky="ew", padx=12, pady=12)
+        modules_box.grid(row=row_index, column=1, sticky="ew", padx=12, pady=12)
         tk.Label(
             modules_box,
             textvariable=self.modules_path_var,
@@ -2091,7 +2114,7 @@ class ParentPanelV23(tk.Toplevel):
         top_buttons.pack(anchor="w", padx=12, pady=(0, 8))
         tk.Button(
             top_buttons,
-            text=self.ui_text("Открыть папку модулей", "Otworz folder modulow", "Open modules folder"),
+            text=self.ui_text("??????? ????? ???????", "Otworz folder modulow", "Open modules folder"),
             command=self.open_modules_folder,
             bg=ACCENT_2,
             fg="white",
@@ -2101,7 +2124,7 @@ class ParentPanelV23(tk.Toplevel):
         ).pack(side="left", padx=(0, 8))
         tk.Button(
             top_buttons,
-            text=self.ui_text("Обновить модули", "Odswiez moduly", "Refresh modules"),
+            text=self.ui_text("???????? ??????", "Odswiez moduly", "Refresh modules"),
             command=lambda: self.refresh_modules(announce=True),
             bg=CARD,
             fg=TEXT,
@@ -2114,7 +2137,7 @@ class ParentPanelV23(tk.Toplevel):
         bottom_buttons.pack(anchor="w", padx=12, pady=(0, 12))
         tk.Button(
             bottom_buttons,
-            text=self.ui_text("Импорт папки...", "Import folderu...", "Import folder..."),
+            text=self.ui_text("?????? ?????...", "Import folderu...", "Import folder..."),
             command=self.import_module_folder_dialog,
             bg=ACCENT,
             fg="#111",
@@ -2124,7 +2147,7 @@ class ParentPanelV23(tk.Toplevel):
         ).pack(side="left", padx=(0, 8))
         tk.Button(
             bottom_buttons,
-            text=self.ui_text("Импорт zip/json...", "Import zip/json...", "Import zip/json..."),
+            text=self.ui_text("?????? zip/json...", "Import zip/json...", "Import zip/json..."),
             command=self.import_module_file_dialog,
             bg=ACCENT,
             fg="#111",
@@ -2134,7 +2157,7 @@ class ParentPanelV23(tk.Toplevel):
         ).pack(side="left", padx=(0, 8))
         tk.Button(
             bottom_buttons,
-            text=self.ui_text("Создать шаблон...", "Utworz szablon...", "Create template..."),
+            text=self.ui_text("??????? ??????...", "Utworz szablon...", "Create template..."),
             command=self.export_template_dialog,
             bg=CARD,
             fg=TEXT,
@@ -2142,75 +2165,87 @@ class ParentPanelV23(tk.Toplevel):
             padx=14,
             pady=8,
         ).pack(side="left")
-        card.grid_columnconfigure(1, weight=1)
 
-    def refresh_settings(self) -> None:
-        self.app.reload_from_db()
-        self.lang = self.app.lang
-        self.settings_loaded = True
+    def _refresh_settings_field_values(self) -> None:
         self.program_id_label.configure(text=self.app.settings["program_id"])
         for key, widget in self.settings_widgets.items():
             widget.delete(0, "end")
             widget.insert(0, str(self.app.settings.get(key, "")))
-        self.parent_lang_var.set(self.app.lang)
-        self.password_entry.delete(0, "end")
-        self.password_confirm_entry.delete(0, "end")
+
+    def _refresh_settings_module_summary(self) -> None:
         module_count = len(self.app.db.list_modules())
         pause_min, pause_max = self.app.pause_duration_bounds()
         extra_tokens = safe_int(self.app.settings.get("shop_extra_pause_tokens"), 0)
         upgrade_level = safe_int(self.app.settings.get("pause_upgrade_level"), 0)
-        self.modules_path_var.set(f"{self.ui_text('Папка модулей', 'Folder modulow', 'Modules folder')}: {self.app.db.modules_dir}")
-        self.module_template_var.set(f"{self.ui_text('Шаблон модуля', 'Szablon modulu', 'Module template')}: {MODULE_TEMPLATE_DIR}")
+        self.modules_path_var.set(f"{self.ui_text('????? ???????', 'Folder modulow', 'Modules folder')}: {self.app.db.modules_dir}")
+        self.module_template_var.set(f"{self.ui_text('?????? ??????', 'Szablon modulu', 'Module template')}: {MODULE_TEMPLATE_DIR}")
         self.module_status_var.set(
             self.ui_text(
-                f"Загружено модулей: {module_count}. Можно импортировать архив, JSON или просто открыть папку модулей и положить туда новую папку.",
+                f"????????? ???????: {module_count}. ????? ????????????? ?????, JSON ??? ?????? ??????? ????? ??????? ? ???????? ???? ????? ?????.",
                 f"Zaladowane moduly: {module_count}. Mozesz zaimportowac archiwum, JSON albo po prostu otworzyc folder modulow i wkleic tam nowy katalog.",
                 f"Loaded modules: {module_count}. You can import a zip/JSON file or just open the modules folder and drop a new module folder there.",
             )
         )
         self.pause_settings_info_var.set(
             self.ui_text(
-                f"Уровень улучшения паузы: {upgrade_level}/4. Сейчас можно поставить {pause_min}-{pause_max} мин. Доп. паузы в запасе: {extra_tokens}.",
+                f"??????? ????????? ?????: {upgrade_level}/4. ?????? ????? ????????? {pause_min}-{pause_max} ???. ???. ????? ? ??????: {extra_tokens}.",
                 f"Poziom ulepszenia pauzy: {upgrade_level}/4. Teraz mozna ustawic {pause_min}-{pause_max} min. Dodatkowe pauzy w zapasie: {extra_tokens}.",
                 f"Pause upgrade level: {upgrade_level}/4. You can currently set {pause_min}-{pause_max} min. Extra pauses in reserve: {extra_tokens}.",
             )
         )
 
+    def refresh_settings(self) -> None:
+        self.app.reload_from_db()
+        self.lang = self.app.lang
+        self.settings_loaded = True
+        self._refresh_settings_field_values()
+        self.parent_lang_var.set(self.app.lang)
+        self.password_entry.delete(0, "end")
+        self.password_confirm_entry.delete(0, "end")
+        self._refresh_settings_module_summary()
+
+    def _parse_settings_value(self, key: str, raw: str) -> object:
+        if key in {"break_seconds", "tasks_per_break", "lesson_seconds", "lan_admin_port"}:
+            return max(1, safe_int(raw, safe_int(self.app.settings.get(key), 1)))
+        if key == "manual_pause_uses":
+            return min(2, max(1, safe_int(raw, safe_int(self.app.settings.get(key), 1))))
+        if key == "manual_pause_minutes":
+            pause_min, pause_max = self.app.pause_duration_bounds()
+            current_value = safe_int(raw, safe_int(self.app.settings.get(key), pause_min))
+            return min(pause_max, max(pause_min, current_value))
+        return raw
+
+    def _collect_settings_updates(self) -> dict[str, object]:
+        updates: dict[str, object] = {}
+        for key, widget in self.settings_widgets.items():
+            updates[key] = self._parse_settings_value(key, widget.get().strip())
+        updates["window_language"] = self.parent_lang_var.get()
+        return updates
+
+    def _apply_parent_password_change(self, *, auto_save: bool) -> bool:
+        password = self.password_entry.get().strip()
+        confirm = self.password_confirm_entry.get().strip()
+        if not (password or confirm):
+            return True
+        if password != confirm:
+            if auto_save:
+                return True
+            messagebox.showerror(APP_TITLE, "Passwords do not match", parent=self)
+            return False
+        if len(password) < 4:
+            if auto_save:
+                return True
+            messagebox.showerror(APP_TITLE, "Password must contain at least 4 characters", parent=self)
+            return False
+        self.app.db.update_parent_password(password)
+        return True
+
     def save_settings(self, *, show_message: bool = True, close_panel: bool = True, auto_save: bool = False) -> bool:
         if auto_save and not self.settings_loaded:
             return True
-        updates = {}
-        for key, widget in self.settings_widgets.items():
-            raw = widget.get().strip()
-            if key in {"break_seconds", "tasks_per_break", "lesson_seconds", "lan_admin_port"}:
-                updates[key] = max(1, safe_int(raw, safe_int(self.app.settings.get(key), 1)))
-            elif key == "manual_pause_uses":
-                updates[key] = min(2, max(1, safe_int(raw, safe_int(self.app.settings.get(key), 1))))
-            elif key == "manual_pause_minutes":
-                pause_min, pause_max = self.app.pause_duration_bounds()
-                current_value = safe_int(raw, safe_int(self.app.settings.get(key), pause_min))
-                updates[key] = min(pause_max, max(pause_min, current_value))
-            else:
-                updates[key] = raw
-        updates["window_language"] = self.parent_lang_var.get()
-        password = self.password_entry.get().strip()
-        confirm = self.password_confirm_entry.get().strip()
-        if password or confirm:
-            if password != confirm:
-                if auto_save:
-                    password = ""
-                    confirm = ""
-                else:
-                    messagebox.showerror(APP_TITLE, "Passwords do not match", parent=self)
-                    return False
-            if len(password) < 4:
-                if auto_save:
-                    password = ""
-                else:
-                    messagebox.showerror(APP_TITLE, "Password must contain at least 4 characters", parent=self)
-                    return False
-            if password and password == confirm:
-                self.app.db.update_parent_password(password)
+        updates = self._collect_settings_updates()
+        if not self._apply_parent_password_change(auto_save=auto_save):
+            return False
         self.app.db.update_settings(updates)
         self.app.reload_from_db()
         self.app.start_lan_server_if_needed()
