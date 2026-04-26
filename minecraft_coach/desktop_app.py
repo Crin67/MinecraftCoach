@@ -229,6 +229,32 @@ def safe_int(value: Any, default: int) -> int:
         return default
 
 
+class ScrollFrame(tk.Frame):
+    def __init__(self, parent: tk.Misc, *, bg: str) -> None:
+        super().__init__(parent, bg=bg)
+        self.canvas = tk.Canvas(self, bg=bg, highlightthickness=0, bd=0)
+        self.scrollbar = tk.Scrollbar(self, orient="vertical", command=self.canvas.yview)
+        self.body = tk.Frame(self.canvas, bg=bg)
+        self.window_id = self.canvas.create_window((0, 0), window=self.body, anchor="nw")
+        self.canvas.configure(yscrollcommand=self.scrollbar.set)
+        self.canvas.pack(side="left", fill="both", expand=True)
+        self.scrollbar.pack(side="right", fill="y")
+        self.body.bind("<Configure>", self._sync_scroll_region)
+        self.canvas.bind("<Configure>", self._sync_body_width)
+        self.canvas.bind_all("<MouseWheel>", self._on_mousewheel, add="+")
+
+    def _sync_scroll_region(self, _event: tk.Event | None = None) -> None:
+        self.canvas.configure(scrollregion=self.canvas.bbox("all"))
+
+    def _sync_body_width(self, event: tk.Event) -> None:
+        self.canvas.itemconfigure(self.window_id, width=max(1, event.width))
+
+    def _on_mousewheel(self, event: tk.Event) -> None:
+        if not self.winfo_ismapped():
+            return
+        self.canvas.yview_scroll(int(-1 * (event.delta / 120)), "units")
+
+
 class ParentPanelV23(tk.Toplevel):
     def __init__(self, app: "MinecraftCoachV23", initial_tab: str = "settings") -> None:
         super().__init__(app.root)
@@ -512,7 +538,7 @@ class MinecraftCoachV23:
         self.root = root
         self.root.title(f"{APP_TITLE} v23")
         self.root.configure(bg=PALETTE["bg"])
-        self.root.minsize(900, 620)
+        self.root.minsize(760, 560)
         self.root.protocol("WM_DELETE_WINDOW", self.request_close)
 
         self.db = LocalDB(
@@ -569,6 +595,7 @@ class MinecraftCoachV23:
         self.feedback_var = tk.StringVar(value="")
         self.answer_entry: tk.Entry | None = None
         self.memory_button: tk.Button | None = None
+        self.task_image_ref: tk.PhotoImage | None = None
         self.show_language_screen()
         self.start_lan_server_if_needed()
 
@@ -616,8 +643,30 @@ class MinecraftCoachV23:
         for child in self.content.winfo_children():
             child.destroy()
         self.answer_entry = None
+        self.task_image_ref = None
         self.feedback_var.set("")
         self.timer_var.set("")
+
+    def start_page(self) -> tk.Frame:
+        self.clear_content()
+        page = ScrollFrame(self.content, bg=PALETTE["bg"])
+        page.pack(fill="both", expand=True)
+        return page.body
+
+    def viewport_width(self) -> int:
+        self.root.update_idletasks()
+        return max(1, self.root.winfo_width())
+
+    def page_padding(self) -> int:
+        return 18 if self.viewport_width() < 900 else 34
+
+    def text_wrap(self, *, reserve: int = 120, max_width: int = 940, min_width: int = 260) -> int:
+        width = self.viewport_width() - (self.page_padding() * 2) - reserve
+        return max(min_width, min(max_width, width))
+
+    def card_columns(self, *, item_min_width: int = 320, max_columns: int = 3) -> int:
+        available = max(1, self.viewport_width() - self.page_padding() * 2)
+        return max(1, min(max_columns, available // item_min_width))
 
     def button(
         self,
@@ -645,6 +694,8 @@ class MinecraftCoachV23:
             padx=18,
             pady=11,
             font=("Segoe UI", 11, "bold"),
+            wraplength=max(140, min(260, self.viewport_width() // 3)),
+            justify="center",
         )
         if fill:
             button.pack(fill=fill)
@@ -652,17 +703,23 @@ class MinecraftCoachV23:
 
     def build_header(self, parent: tk.Misc, title: str, *, back: Callable[[], None] | None = None) -> tk.Frame:
         header = tk.Frame(parent, bg=PALETTE["bg"])
-        header.pack(fill="x", padx=34, pady=(28, 18))
+        pad = self.page_padding()
+        header.pack(fill="x", padx=pad, pady=(22, 16))
+        header.grid_columnconfigure(1, weight=1)
+        column = 0
         if back:
-            self.button(header, "←", back, tone="quiet").pack(side="left", padx=(0, 14))
+            self.button(header, "<", back, tone="quiet").grid(row=0, column=0, sticky="w", padx=(0, 12))
+            column = 1
         tk.Label(
             header,
             text=title,
             bg=PALETTE["bg"],
             fg=PALETTE["text"],
             font=("Segoe UI", 26, "bold"),
-        ).pack(side="left")
-        tk.Label(
+            wraplength=self.text_wrap(reserve=220, max_width=760),
+            justify="left",
+        ).grid(row=0, column=column, sticky="w")
+        badge = tk.Label(
             header,
             text=f"{self.text('coins')}: {self.stats.get('coins', 0)}",
             bg=PALETTE["panel"],
@@ -670,15 +727,19 @@ class MinecraftCoachV23:
             padx=14,
             pady=8,
             font=("Segoe UI", 10, "bold"),
-        ).pack(side="right")
+        )
+        if self.viewport_width() < 860:
+            badge.grid(row=1, column=column, sticky="w", pady=(10, 0))
+        else:
+            badge.grid(row=0, column=2, sticky="e", padx=(12, 0))
         return header
 
     def show_language_screen(self) -> None:
         self.current_screen = "language"
         self.cancel_all_timers()
-        self.clear_content()
-        wrap = tk.Frame(self.content, bg=PALETTE["bg"])
-        wrap.place(relx=0.5, rely=0.5, anchor="center", relwidth=0.86)
+        page = self.start_page()
+        wrap = tk.Frame(page, bg=PALETTE["bg"])
+        wrap.pack(fill="both", expand=True, padx=self.page_padding(), pady=(42, 34))
         tk.Label(
             wrap,
             text=APP_TITLE,
@@ -692,14 +753,27 @@ class MinecraftCoachV23:
             bg=PALETTE["bg"],
             fg=PALETTE["muted"],
             font=("Segoe UI", 13),
+            wraplength=self.text_wrap(reserve=80, max_width=720),
+            justify="center",
         ).pack(anchor="center", pady=(8, 28))
         row = tk.Frame(wrap, bg=PALETTE["bg"])
-        row.pack(anchor="center")
-        for code, (label, prompt) in LANGUAGES.items():
+        row.pack(fill="x", anchor="center")
+        columns = self.card_columns(item_min_width=210, max_columns=3)
+        for column in range(columns):
+            row.grid_columnconfigure(column, weight=1, uniform="languages")
+        for index, (code, (label, prompt)) in enumerate(LANGUAGES.items()):
             card = tk.Frame(row, bg=PALETTE["card"], padx=24, pady=22)
-            card.pack(side="left", padx=10, ipadx=18, ipady=6)
-            tk.Label(card, text=label, bg=PALETTE["card"], fg=PALETTE["text"], font=("Segoe UI", 18, "bold")).pack()
-            tk.Label(card, text=prompt, bg=PALETTE["card"], fg=PALETTE["muted"], font=("Segoe UI", 10)).pack(pady=(6, 16))
+            card.grid(row=index // columns, column=index % columns, sticky="nsew", padx=8, pady=8)
+            tk.Label(card, text=label, bg=PALETTE["card"], fg=PALETTE["text"], font=("Segoe UI", 18, "bold"), wraplength=220).pack()
+            tk.Label(
+                card,
+                text=prompt,
+                bg=PALETTE["card"],
+                fg=PALETTE["muted"],
+                font=("Segoe UI", 10),
+                wraplength=220,
+                justify="center",
+            ).pack(pady=(6, 16))
             self.button(card, "OK", lambda selected=code: self.set_language(selected)).pack(fill="x")
 
     def set_language(self, lang: str) -> None:
@@ -716,17 +790,19 @@ class MinecraftCoachV23:
         self.current_topic = None
         self.current_task = None
         self.lesson_blocks = []
-        self.clear_content()
-        self.build_header(self.content, self.text("main"))
+        page = self.start_page()
+        self.build_header(page, self.text("main"))
 
-        body = tk.Frame(self.content, bg=PALETTE["bg"])
-        body.pack(fill="both", expand=True, padx=34, pady=(0, 34))
-        body.grid_columnconfigure(0, weight=3)
-        body.grid_columnconfigure(1, weight=2)
+        body = tk.Frame(page, bg=PALETTE["bg"])
+        body.pack(fill="both", expand=True, padx=self.page_padding(), pady=(0, 34))
+        narrow = self.viewport_width() < 980
+        body.grid_columnconfigure(0, weight=1)
+        if not narrow:
+            body.grid_columnconfigure(1, weight=1)
         body.grid_rowconfigure(0, weight=1)
 
         actions = tk.Frame(body, bg=PALETTE["panel"], padx=24, pady=24)
-        actions.grid(row=0, column=0, sticky="nsew", padx=(0, 16))
+        actions.grid(row=0, column=0, sticky="nsew", padx=(0, 0 if narrow else 16), pady=(0, 16 if narrow else 0))
         for label, command, tone in [
             (self.text("play"), self.show_modules_screen, "primary"),
             (self.text("settings"), self.open_settings, "quiet"),
@@ -736,7 +812,7 @@ class MinecraftCoachV23:
             self.button(actions, label, command, tone=tone).pack(fill="x", pady=7)
 
         stats = tk.Frame(body, bg=PALETTE["surface"], padx=24, pady=24)
-        stats.grid(row=0, column=1, sticky="nsew")
+        stats.grid(row=1 if narrow else 0, column=0 if narrow else 1, sticky="nsew")
         snapshot = self.db.get_dashboard_snapshot()
         rows = [
             ("Program ID", snapshot["program_id"]),
@@ -761,14 +837,14 @@ class MinecraftCoachV23:
         self.current_task = None
         self.lesson_blocks = []
         modules = self.sync_modules_from_disk(refresh_start_screen=False)
-        self.clear_content()
-        self.build_header(self.content, self.text("modules"), back=self.show_main_menu)
-        toolbar = tk.Frame(self.content, bg=PALETTE["bg"])
-        toolbar.pack(fill="x", padx=34, pady=(0, 14))
+        page = self.start_page()
+        self.build_header(page, self.text("modules"), back=self.show_main_menu)
+        toolbar = tk.Frame(page, bg=PALETTE["bg"])
+        toolbar.pack(fill="x", padx=self.page_padding(), pady=(0, 14))
         self.button(toolbar, self.text("scan_modules"), self.show_modules_screen).pack(side="left")
 
-        grid = tk.Frame(self.content, bg=PALETTE["bg"])
-        grid.pack(fill="both", expand=True, padx=34, pady=(0, 30))
+        grid = tk.Frame(page, bg=PALETTE["bg"])
+        grid.pack(fill="both", expand=True, padx=self.page_padding(), pady=(0, 30))
         if not modules:
             tk.Label(
                 grid,
@@ -778,7 +854,7 @@ class MinecraftCoachV23:
                 font=("Segoe UI", 14),
             ).pack(anchor="w", pady=18)
             return
-        columns = 2 if self.root.winfo_width() < 1180 else 3
+        columns = self.card_columns(item_min_width=330, max_columns=3)
         for col in range(columns):
             grid.grid_columnconfigure(col, weight=1, uniform="modules")
         for index, module in enumerate(modules):
@@ -789,10 +865,11 @@ class MinecraftCoachV23:
         card.grid(row=index // columns, column=index % columns, sticky="nsew", padx=8, pady=8)
         title = localized_value(module, "title", self.lang) or str(module.get("slug"))
         desc = localized_value(module, "description", self.lang)
-        tk.Label(card, text=title, bg=PALETTE["card"], fg=PALETTE["text"], font=("Segoe UI", 16, "bold"), wraplength=300).pack(
+        wrap = self.text_wrap(reserve=120, max_width=320)
+        tk.Label(card, text=title, bg=PALETTE["card"], fg=PALETTE["text"], font=("Segoe UI", 16, "bold"), wraplength=wrap).pack(
             anchor="w",
         )
-        tk.Label(card, text=desc, bg=PALETTE["card"], fg=PALETTE["muted"], font=("Segoe UI", 10), wraplength=320, justify="left").pack(
+        tk.Label(card, text=desc, bg=PALETTE["card"], fg=PALETTE["muted"], font=("Segoe UI", 10), wraplength=wrap, justify="left").pack(
             anchor="w",
             pady=(8, 18),
         )
@@ -809,20 +886,21 @@ class MinecraftCoachV23:
 
     def show_levels_screen(self, module: dict[str, Any]) -> None:
         self.current_screen = "levels"
-        self.clear_content()
-        self.build_header(self.content, self.text("levels"), back=self.show_modules_screen)
+        page = self.start_page()
+        self.build_header(page, self.text("levels"), back=self.show_modules_screen)
         levels = self.db.list_levels(sphere_id=module["id"])
-        self.simple_card_grid(levels, lambda level: localized_value(level, "title", self.lang), lambda level: self.show_topics_screen(module, level))
+        self.simple_card_grid(page, levels, lambda level: localized_value(level, "title", self.lang), lambda level: self.show_topics_screen(module, level))
 
     def show_topics_screen(self, module: dict[str, Any], level: dict[str, Any] | None = None) -> None:
         self.current_screen = "topics"
         self.current_module = module
         self.current_level = level
-        self.clear_content()
+        page = self.start_page()
         back = lambda: self.show_levels_screen(module) if self.db.list_levels(sphere_id=module["id"]) else self.show_modules_screen()
-        self.build_header(self.content, self.text("topics"), back=back)
+        self.build_header(page, self.text("topics"), back=back)
         topics = self.db.list_topics(sphere_id=module["id"], level_id=level["id"] if level else None)
         self.simple_card_grid(
+            page,
             topics,
             lambda topic: localized_value(topic, "title", self.lang),
             self.select_topic,
@@ -831,21 +909,23 @@ class MinecraftCoachV23:
 
     def simple_card_grid(
         self,
+        parent: tk.Misc,
         items: list[dict[str, Any]],
         title: Callable[[dict[str, Any]], str],
         command: Callable[[dict[str, Any]], None],
         *,
         description: Callable[[dict[str, Any]], str] | None = None,
     ) -> None:
-        grid = tk.Frame(self.content, bg=PALETTE["bg"])
-        grid.pack(fill="both", expand=True, padx=34, pady=(0, 30))
-        columns = 2 if self.root.winfo_width() < 1180 else 3
+        grid = tk.Frame(parent, bg=PALETTE["bg"])
+        grid.pack(fill="both", expand=True, padx=self.page_padding(), pady=(0, 30))
+        columns = self.card_columns(item_min_width=300, max_columns=3)
         for col in range(columns):
             grid.grid_columnconfigure(col, weight=1, uniform="cards")
         for index, item in enumerate(items):
             card = tk.Frame(grid, bg=PALETTE["card"], padx=18, pady=18)
             card.grid(row=index // columns, column=index % columns, sticky="nsew", padx=8, pady=8)
-            tk.Label(card, text=title(item), bg=PALETTE["card"], fg=PALETTE["text"], font=("Segoe UI", 15, "bold"), wraplength=320).pack(
+            wrap = self.text_wrap(reserve=120, max_width=320)
+            tk.Label(card, text=title(item), bg=PALETTE["card"], fg=PALETTE["text"], font=("Segoe UI", 15, "bold"), wraplength=wrap).pack(
                 anchor="w",
             )
             if description:
@@ -855,7 +935,7 @@ class MinecraftCoachV23:
                     bg=PALETTE["card"],
                     fg=PALETTE["muted"],
                     font=("Segoe UI", 10),
-                    wraplength=320,
+                    wraplength=wrap,
                     justify="left",
                 ).pack(anchor="w", pady=(8, 18))
             self.button(card, self.text("start_now"), lambda current=item: command(current)).pack(anchor="w")
@@ -882,15 +962,15 @@ class MinecraftCoachV23:
         self.current_screen = "waiting"
         self.current_task = None
         self.lesson_blocks = []
-        self.clear_content()
+        page = self.start_page()
         title = localized_value(self.current_topic, "title", self.lang) if self.current_topic else self.text("waiting")
-        self.build_header(self.content, self.text("waiting"), back=self.show_modules_screen)
-        panel = tk.Frame(self.content, bg=PALETTE["panel"], padx=26, pady=24)
-        panel.pack(fill="x", padx=34, pady=(8, 18))
+        self.build_header(page, self.text("waiting"), back=self.show_modules_screen)
+        panel = tk.Frame(page, bg=PALETTE["panel"], padx=26, pady=24)
+        panel.pack(fill="x", padx=self.page_padding(), pady=(8, 18))
         tk.Label(panel, text=self.text("selected_topic"), bg=PALETTE["panel"], fg=PALETTE["muted"], font=("Segoe UI", 10, "bold")).pack(
             anchor="w",
         )
-        tk.Label(panel, text=title, bg=PALETTE["panel"], fg=PALETTE["text"], font=("Segoe UI", 22, "bold"), wraplength=860).pack(
+        tk.Label(panel, text=title, bg=PALETTE["panel"], fg=PALETTE["text"], font=("Segoe UI", 22, "bold"), wraplength=self.text_wrap(max_width=860)).pack(
             anchor="w",
             pady=(6, 16),
         )
@@ -900,9 +980,12 @@ class MinecraftCoachV23:
         )
         row = tk.Frame(panel, bg=PALETTE["panel"])
         row.pack(anchor="w")
-        self.button(row, self.text("start_now"), self.start_next_break).pack(side="left")
-        self.button(row, self.text("pause"), self.begin_manual_pause, tone="quiet").pack(side="left", padx=10)
-        self.button(row, self.text("shop"), self.open_shop, tone="quiet").pack(side="left")
+        for label, command, tone in [
+            (self.text("start_now"), self.start_next_break, "primary"),
+            (self.text("pause"), self.begin_manual_pause, "quiet"),
+            (self.text("shop"), self.open_shop, "quiet"),
+        ]:
+            self.button(row, label, command, tone=tone).pack(side="left", padx=(0, 10), pady=(0, 8))
         self.update_waiting_timer()
 
     def update_waiting_timer(self) -> None:
@@ -966,19 +1049,19 @@ class MinecraftCoachV23:
         self.current_screen = "lesson"
         self.lesson_index = index
         self.current_task = None
-        self.clear_content()
+        page = self.start_page()
         block = self.lesson_blocks[index]
         title = localized_value(block, "title", self.lang) or localized_value(self.current_topic, "title", self.lang)
-        self.build_header(self.content, title, back=self.show_waiting_state)
-        panel = tk.Frame(self.content, bg=PALETTE["panel"], padx=26, pady=24)
-        panel.pack(fill="both", expand=True, padx=34, pady=(0, 34))
+        self.build_header(page, title, back=self.show_waiting_state)
+        panel = tk.Frame(page, bg=PALETTE["panel"], padx=26, pady=24)
+        panel.pack(fill="both", expand=True, padx=self.page_padding(), pady=(0, 34))
         tk.Label(
             panel,
             text=localized_value(block, "content", self.lang),
             bg=PALETTE["panel"],
             fg=PALETTE["text"],
             font=("Segoe UI", 15),
-            wraplength=940,
+            wraplength=self.text_wrap(max_width=940),
             justify="left",
         ).pack(anchor="w", fill="x")
         tk.Label(panel, textvariable=self.timer_var, bg=PALETTE["panel"], fg=PALETTE["accent"], font=("Segoe UI", 16, "bold")).pack(
@@ -1020,11 +1103,11 @@ class MinecraftCoachV23:
         self.cancel_memory_timer()
         self.current_screen = "task"
         self.current_task = task
-        self.clear_content()
+        page = self.start_page()
         step = f"{self.tt('task')} {self.current_index + 1} {self.tt('of')} {len(self.current_break_tasks)}"
-        self.build_header(self.content, step, back=self.show_waiting_state)
-        panel = tk.Frame(self.content, bg=PALETTE["panel"], padx=26, pady=24)
-        panel.pack(fill="both", expand=True, padx=34, pady=(0, 34))
+        self.build_header(page, step, back=self.show_waiting_state)
+        panel = tk.Frame(page, bg=PALETTE["panel"], padx=26, pady=24)
+        panel.pack(fill="both", expand=True, padx=self.page_padding(), pady=(0, 34))
         tk.Label(
             panel,
             text=localized_value(task, "title", self.lang),
@@ -1038,7 +1121,7 @@ class MinecraftCoachV23:
             bg=PALETTE["panel"],
             fg=PALETTE["text"],
             font=("Segoe UI", 20, "bold"),
-            wraplength=940,
+            wraplength=self.text_wrap(max_width=940),
             justify="left",
         ).pack(anchor="w", fill="x", pady=(8, 22))
         tk.Label(panel, textvariable=self.feedback_var, bg=PALETTE["panel"], fg=PALETTE["muted"], font=("Segoe UI", 12, "bold")).pack(
@@ -1085,7 +1168,7 @@ class MinecraftCoachV23:
         grid = tk.Frame(parent, bg=PALETTE["panel"])
         grid.pack(fill="x")
         options = self.choice_options_for_task(task)
-        columns = 1 if any(len(option) > 28 for option in options) else 2
+        columns = 1 if self.viewport_width() < 980 or any(len(option) > 28 for option in options) else 2
         for col in range(columns):
             grid.grid_columnconfigure(col, weight=1, uniform="choices")
         for index, option in enumerate(options):
@@ -1232,10 +1315,10 @@ class MinecraftCoachV23:
 
     def show_manual_pause_screen(self) -> None:
         self.current_screen = "pause"
-        self.clear_content()
-        self.build_header(self.content, self.text("pause"))
-        panel = tk.Frame(self.content, bg=PALETTE["panel"], padx=26, pady=24)
-        panel.pack(fill="x", padx=34, pady=(10, 30))
+        page = self.start_page()
+        self.build_header(page, self.text("pause"))
+        panel = tk.Frame(page, bg=PALETTE["panel"], padx=26, pady=24)
+        panel.pack(fill="x", padx=self.page_padding(), pady=(10, 30))
         tk.Label(panel, text=self.text("pause_left"), bg=PALETTE["panel"], fg=PALETTE["text"], font=("Segoe UI", 20, "bold")).pack(
             anchor="w",
         )
@@ -1301,8 +1384,8 @@ class MinecraftCoachV23:
         self.shop_window = tk.Toplevel(self.root)
         self.shop_window.title(self.text("shop"))
         self.shop_window.configure(bg=PALETTE["bg"])
-        self.shop_window.geometry("820x460")
-        self.shop_window.minsize(680, 420)
+        self.shop_window.geometry("820x520")
+        self.shop_window.minsize(620, 420)
         self.shop_window.protocol("WM_DELETE_WINDOW", self.close_shop_window)
         header = tk.Frame(self.shop_window, bg=PALETTE["bg"])
         header.pack(fill="x", padx=24, pady=(22, 12))
@@ -1312,8 +1395,9 @@ class MinecraftCoachV23:
         tk.Label(header, textvariable=self.shop_balance_var, bg=PALETTE["panel"], fg=PALETTE["text"], padx=14, pady=8).pack(
             side="right",
         )
-        self.shop_content = tk.Frame(self.shop_window, bg=PALETTE["bg"])
-        self.shop_content.pack(fill="both", expand=True, padx=24, pady=10)
+        shop_scroll = ScrollFrame(self.shop_window, bg=PALETTE["bg"])
+        shop_scroll.pack(fill="both", expand=True, padx=24, pady=10)
+        self.shop_content = shop_scroll.body
         tk.Label(
             self.shop_window,
             textvariable=self.shop_status_var,
@@ -1349,12 +1433,13 @@ class MinecraftCoachV23:
                 self.buy_shop_pause_upgrade,
             ),
         ]
-        for col in range(3):
+        columns = 1 if self.shop_window and self.shop_window.winfo_width() < 760 else 3
+        for col in range(columns):
             self.shop_content.grid_columnconfigure(col, weight=1, uniform="shop")
         for index, (title, status, price, command) in enumerate(cards):
             card = tk.Frame(self.shop_content, bg=PALETTE["card"], padx=18, pady=18)
-            card.grid(row=0, column=index, sticky="nsew", padx=8, pady=8)
-            tk.Label(card, text=title, bg=PALETTE["card"], fg=PALETTE["text"], font=("Segoe UI", 15, "bold"), wraplength=190).pack(
+            card.grid(row=index // columns, column=index % columns, sticky="nsew", padx=8, pady=8)
+            tk.Label(card, text=title, bg=PALETTE["card"], fg=PALETTE["text"], font=("Segoe UI", 15, "bold"), wraplength=240).pack(
                 anchor="w",
             )
             tk.Label(card, text=status, bg=PALETTE["card"], fg=PALETTE["muted"], font=("Segoe UI", 12)).pack(anchor="w", pady=(10, 18))
@@ -1477,6 +1562,9 @@ class MinecraftCoachV23:
 
     def request_close(self) -> None:
         self.cancel_all_timers()
+        if self.geometry_after_id:
+            self.root.after_cancel(self.geometry_after_id)
+            self.geometry_after_id = None
         self.stop_lan_server()
         self.close_shop_window()
         if self.parent_panel_window and self.parent_panel_window.winfo_exists():
@@ -1489,4 +1577,3 @@ def main() -> None:
     root = tk.Tk()
     MinecraftCoachV23(root)
     root.mainloop()
-
